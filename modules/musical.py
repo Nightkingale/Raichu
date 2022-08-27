@@ -17,7 +17,8 @@ ytdl_format_options = {
     "quiet": True,
     "no_warnings": True,
     "default_search": "auto",
-    "source_address": "0.0.0.0",  # bind to ipv4 since ipv6 addresses cause issues sometimes
+    # Bind to IPv4 since IPv6 addresses cause issues.
+    "source_address": "0.0.0.0",
 }
 
 ffmpeg_options = {
@@ -28,10 +29,11 @@ ytdl = youtube_dl.YoutubeDL(ytdl_format_options)
 
 queue = []
 
+
 class YTDLSource(discord.PCMVolumeTransformer):
     def __init__(self, source, *, data, volume=0.5):
         super().__init__(source, volume)
-        
+
         self.data = data
         self.duration = data.get("duration")
         self.thumbnail = data.get("thumbnail")
@@ -62,52 +64,97 @@ class Musical(commands.Cog):
     @app_commands.describe(query="The music you would like to play.")
     async def play(self, interaction: discord.Interaction, *, query: str):
         "Plays music in the current voice channel."
-        if self.bot.voice_clients == []:
-            try:
-                channel = interaction.user.voice.channel
-                voice_client = await channel.connect()
-            except AttributeError:
-                return await interaction.response.send_message(
-                    "Please join a voice channel to use this command!")
-            except ClientException:
-                await interaction.guild.voice_client.disconnect()
-                voice_client = await interaction.user.voice.channel.connect()
+        if queue == []:
+            queue.append(query)
+
+        while queue != []:
+            if self.bot.voice_clients == []:
+                try:
+                    channel = interaction.user.voice.channel
+                    voice_client = await channel.connect()
+                except AttributeError:
+                    return await interaction.response.send_message(
+                        "Please join a voice channel to use this command!")
+                except ClientException:
+                    await interaction.guild.voice_client.disconnect()
+                    voice_client = await interaction.user.voice.channel.connect()
+            else:
+                voice_client = self.bot.voice_clients[0]
+                channel = voice_client.channel
+
+            if not voice_client.is_playing():
+                try:
+                    await interaction.response.defer()
+                except discord.errors.InteractionResponded:
+                    pass
+
+                player = await YTDLSource.from_url(query, loop=self.bot.loop)
+                voice_client.play(player)
+
+                embed = discord.Embed(title=player.title, description="Playing in "
+                    + voice_client.channel.name, color=0xffff00)
+                embed.set_author(name=player.uploader)
+                embed.set_thumbnail(url=player.thumbnail)
+                embed.add_field(name="Duration", value=datetime.timedelta(
+                    seconds=player.duration), inline=True)
+
+                embed.set_footer(text="This was published on " +
+                    datetime.datetime.strptime(player.upload_date, "%Y%m%d").strftime("%m/%d/%Y") + "!")
+                try:
+                    await interaction.followup.send("Your music is about to play!", embed=embed)
+                except discord.errors.InteractionResponded:
+                    await interaction.channel.send("Your music is about to play!", embed=embed)
+
+                while voice_client.is_playing():
+                    await asyncio.sleep(1)
+
+                queue.pop(0)
+                if len(queue) > 0:
+                    query = queue[0]
+                else:
+                    await voice_client.disconnect()
+            else:
+                await interaction.response.send_message(f"Your music, `{query}`, is added"
+                    + " to the queue!")
+                return queue.append(query)
+
+    @app_commands.command()
+    async def queue(self, interaction: discord.Interaction):
+        "Shows the music currently waiting to be played."
+        if queue == []:
+            await interaction.response.send_message("There is no currently playing music!")
         else:
             voice_client = self.bot.voice_clients[0]
-            channel = voice_client.channel
 
-        await interaction.response.defer()
+            embed = discord.Embed(title="Music Queue", description="Playing in "
+                + voice_client.channel.name, color=0xffff00)
+            embed.set_author(name=interaction.guild.name)
+            embed.set_thumbnail(url=interaction.guild.icon.url)
+            embed.add_field(
+                name="Queries", value="\n".join(queue), inline=True)
 
-        player = await YTDLSource.from_url(query, loop=self.bot.loop)
-        voice_client.play(player)
+            await interaction.response.send_message("Here's the current queue for"
+                + " music on Nincord!", embed=embed)
 
-        embed = discord.Embed(title=player.title, description="Playing in "
-            + str(channel), color=0xffff00)
-        embed.set_author(name=player.uploader)
-        embed.set_thumbnail(url=player.thumbnail)
-        embed.add_field(name="Duration", value=datetime.timedelta(seconds=
-            player.duration), inline=True)
 
-        embed.set_footer(text="This was published on " +
-            datetime.datetime.strptime(player.upload_date, "%Y%m%d").strftime("%m/%d/%Y") + "!")
-
-        await interaction.followup.send("Your music is about to play!", embed=embed)
-        
-        while voice_client.is_playing():
-            await asyncio.sleep(1)
-        await voice_client.disconnect()
 
     @app_commands.command()
     async def stop(self, interaction: discord.Interaction):
         "Stops music and leaves the voice channel."
+        global queue
+
         voice_client = interaction.guild.voice_client
 
-        if voice_client.is_playing or voice_client.is_paused:
+        if voice_client.is_playing:
             interaction.guild.voice_client.stop()
             await voice_client.disconnect()
+
+            queue = []
+
             await interaction.response.send_message("The music has been successfully stopped!")
         else:
             await interaction.response.send_message("There is no currently playing music!")
+
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(Musical(bot), guilds=[discord.Object(id=450846070025748480)])
