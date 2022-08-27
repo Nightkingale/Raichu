@@ -136,7 +136,16 @@ class Musical(commands.Cog):
             await interaction.response.send_message("Here's the current queue for"
                 + " music on Nincord!", embed=embed)
 
+    @app_commands.command()
+    async def skip(self, interaction: discord.Interaction):
+        "Skips the current music in the voice channel."
+        voice_client = interaction.guild.voice_client
 
+        if voice_client.is_playing:
+            interaction.guild.voice_client.stop()
+            await interaction.response.send_message("The music has been successfully skipped!")
+        else:
+            await interaction.response.send_message("There is no currently playing music!")
 
     @app_commands.command()
     async def stop(self, interaction: discord.Interaction):
