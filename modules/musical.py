@@ -130,8 +130,7 @@ class Musical(commands.Cog):
                 + voice_client.channel.name, color=0xffff00)
             embed.set_author(name=interaction.guild.name)
             embed.set_thumbnail(url=interaction.guild.icon.url)
-            embed.add_field(
-                name="Queries", value="\n".join(queue), inline=True)
+            embed.add_field(name="Queries", value="\n".join(queue), inline=True)
 
             await interaction.response.send_message("Here's the current queue for"
                 + " music on Nincord!", embed=embed)
