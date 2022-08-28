@@ -141,10 +141,13 @@ class Musical(commands.Cog):
         "Skips the current music in the voice channel."
         voice_client = interaction.guild.voice_client
 
-        if voice_client.is_playing:
-            interaction.guild.voice_client.stop()
-            await interaction.response.send_message("The music has been successfully skipped!")
-        else:
+        try:
+            if voice_client.is_playing:
+                interaction.guild.voice_client.stop()
+                await interaction.response.send_message("The music has been successfully skipped!")
+            else:
+                await interaction.response.send_message("There is no currently playing music!")
+        except AttributeError:
             await interaction.response.send_message("There is no currently playing music!")
 
     @app_commands.command()
@@ -154,14 +157,17 @@ class Musical(commands.Cog):
 
         voice_client = interaction.guild.voice_client
 
-        if voice_client.is_playing:
-            interaction.guild.voice_client.stop()
-            await voice_client.disconnect()
+        try:
+            if voice_client.is_playing:
+                interaction.guild.voice_client.stop()
+                await voice_client.disconnect()
 
-            queue = []
+                queue = []
 
-            await interaction.response.send_message("The music has been successfully stopped!")
-        else:
+                await interaction.response.send_message("The music has been successfully stopped!")
+            else:
+                await interaction.response.send_message("There is no currently playing music!")
+        except AttributeError:
             await interaction.response.send_message("There is no currently playing music!")
 
 
