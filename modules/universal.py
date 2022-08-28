@@ -39,7 +39,7 @@ class Universal(commands.Cog):
                 commit = "Unknown"
                 branch = "Unknown"
 
-        embed = discord.Embed(title="Raichu",
+        embed = discord.Embed(title="Raichu", url="https://github.com/NoahAbc12345/Raichu",
             description="A Discord utility bot for Nincord.", color=0xffff00)
         embed.set_author(name="NoahAbc12345")
         embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/"
