@@ -91,8 +91,8 @@ class Musical(commands.Cog):
                 player = await YTDLSource.from_url(query, loop=self.bot.loop)
                 voice_client.play(player)
 
-                embed = discord.Embed(title=player.title, description="Playing in "
-                    + voice_client.channel.name, color=0xffff00)
+                embed = discord.Embed(title=player.title, url=player.url,
+                    description="Playing in " + voice_client.channel.name, color=0xffff00)
                 embed.set_author(name=player.uploader)
                 embed.set_thumbnail(url=player.thumbnail)
                 embed.add_field(name="Duration", value=datetime.timedelta(
