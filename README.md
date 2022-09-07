@@ -1,8 +1,12 @@
 # Raichu
 A utility Discord bot for the Nincord server.
 
-Raichu is a simple bot that is currently being developed and expanded on. It is primarily a moderation bot, however it has other purposes. Unfortunately, Raichu is not made with any other server in mind besides Nincord, so in order to make the bot properly work in other servers, it will have to be heavily modified. The source code is open for anyone to view and see how Raichu works. Raichu is written in Python, and uses the Discord.py package.
+Raichu is a simple bot that is currently being developed and expanded on. It utilizes Discord's new feature, slash commands, opposed to more traditional commands. Raichu is not made with any other server in mind besides Nincord, so in order for it to work otherwise, it might be necessary to make a number of changes to the code.
 
-Feel free to contribute by creating a pull request which shortens or simplifies code, adds new commands you want to see, or anything else! Contributors might be elligible for special bonuses on the Nincord server.
-
+## Usage
 If you would like to see Raichu in action, click [here](https://discord.gg/mYjeaZQ) to join our Discord server!
+- When the bot is invited to a server with the correct permissions, typing `/` in the message box will show a list of commands one can send.
+- Each command has a different purpose, such as sending a message or playing music in a voice channel.
+
+## Credits
+A special thanks is in order for [Lazr1026](https://github.com/Lazr1026) for maintaining Raichu alongside me, and [NicoAICP](https://github.com/NicoAICP) for currently hosting Raichu on his virtual private server.
