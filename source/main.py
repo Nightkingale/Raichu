@@ -16,7 +16,7 @@ class Manager(commands.Bot):
         )
 
     async def setup_hook(self):
-        for filename in os.listdir("./modules"):
+        for filename in os.listdir("./source/modules"):
             if filename.endswith(".py"):
                 await self.load_extension(f"modules.{filename[:-3]}")
         await bot.tree.sync(guild=discord.Object(id=450846070025748480))
