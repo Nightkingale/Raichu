@@ -6,6 +6,7 @@ import youtube_dl
 from discord import ClientException, app_commands
 from discord.ext import commands
 
+
 ytdl_format_options = {
     "format": "bestaudio/best",
     "outtmpl": "%(extractor)s-%(id)s-%(title)s.%(ext)s",
@@ -60,7 +61,10 @@ class Musical(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
-    @app_commands.command()
+    music_group = app_commands.Group(name="music",
+        description="Commands for voice chat audio.")
+
+    @music_group.command()
     @app_commands.describe(query="The music you would like to play.")
     async def play(self, interaction: discord.Interaction, *, query: str):
         "Plays music in the current voice channel."
@@ -119,7 +123,7 @@ class Musical(commands.Cog):
                     + " to the queue!")
                 return queue.append(query)
 
-    @app_commands.command()
+    @music_group.command()
     async def queue(self, interaction: discord.Interaction):
         "Shows the music currently waiting to be played."
         if queue == []:
@@ -136,7 +140,7 @@ class Musical(commands.Cog):
             await interaction.response.send_message("Here's the current queue for"
                 + " music on Nincord!", embed=embed)
 
-    @app_commands.command()
+    @music_group.command()
     async def skip(self, interaction: discord.Interaction):
         "Skips the current music in the voice channel."
         voice_client = interaction.guild.voice_client
@@ -150,7 +154,7 @@ class Musical(commands.Cog):
         except AttributeError:
             await interaction.response.send_message("There is no currently playing music!")
 
-    @app_commands.command()
+    @music_group.command()
     async def stop(self, interaction: discord.Interaction):
         "Stops music and leaves the voice channel."
         global queue

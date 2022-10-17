@@ -11,19 +11,10 @@ class Universal(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
-    @app_commands.command()
-    @app_commands.choices(server=[
-        Choice(name="Nincord", value="mYjeaZQ"),
-        Choice(name="Gary's homebrew stuff", value="geY4G2NZK9"),
-        Choice(name="Puginator Productions", value="Yh2zWxugVE"),
-        Choice(name="ResistanceYT's Hangout Lounge", value="ab6P4gB")])
-    @app_commands.describe(server="The server to provide a link for.")
-    async def invite(self, interaction: discord.Interaction, server: str):
-        "Sends a link to an affiliated server."
-        await interaction.response.send_message("Share this link to invite people! "
-            + f"https://discord.gg/{server}")
+    info_group = app_commands.Group(name="info",
+        description="Commands for miscellaneous information.")
 
-    @app_commands.command()
+    @info_group.command()
     async def build(self, interaction: discord.Interaction):
         "Shows information regarding the bot."
         commit = os.environ.get("COMMIT_SHA", "Unknown")
@@ -55,6 +46,18 @@ class Universal(commands.Cog):
         embed.set_footer(text="Check out my source code on GitHub!")
         await interaction.response.send_message("Here's some information about me!",
             embed=embed)
+
+    @info_group.command()
+    @app_commands.choices(server=[
+        Choice(name="Nincord", value="mYjeaZQ"),
+        Choice(name="Gary's homebrew stuff", value="geY4G2NZK9"),
+        Choice(name="Puginator Productions", value="Yh2zWxugVE"),
+        Choice(name="ResistanceYT's Hangout Lounge", value="ab6P4gB")])
+    @app_commands.describe(server="The server to provide a link for.")
+    async def invite(self, interaction: discord.Interaction, server: str):
+        "Sends a link to an affiliated server."
+        await interaction.response.send_message("Share this link to invite people! "
+            + f"https://discord.gg/{server}")
 
 
 async def setup(bot: commands.Bot):

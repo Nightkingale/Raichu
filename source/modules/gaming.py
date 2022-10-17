@@ -10,8 +10,10 @@ class Gaming(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
+    service_group = app_commands.Group(name="service",
+        description="Commands for gaming services.")
 
-    @app_commands.command()
+    @service_group.command()
     @app_commands.describe(
         member="The member whose RiiTag should be searched for.")
     async def riitag(self, interaction: discord.Interaction, member: discord.Member = None):
