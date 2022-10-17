@@ -41,7 +41,8 @@ class Universal(commands.Cog):
 
         embed = discord.Embed(title="Raichu", url="https://github.com/NoahAbc12345/Raichu",
             description="A Discord utility bot for Nincord.", color=0xffff00)
-        embed.set_author(name="NoahAbc12345")
+        embed.set_author(name="NoahAbc12345", icon_url="https://avatars.githubusercontent"
+            + ".com/u/63483138?v=4")
         embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/"
             + "983846918683770941/7f2ad37cee31d9599ae51a1d3082fb56.png?size=256")
         embed.add_field(name="Branch", value=branch, inline=True)
