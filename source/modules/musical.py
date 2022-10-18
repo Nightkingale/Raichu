@@ -110,6 +110,9 @@ class Musical(commands.Cog):
                 except discord.errors.InteractionResponded:
                     await interaction.channel.send("Your music is about to play!", embed=embed)
 
+                await self.bot.change_presence(activity=discord.Streaming(
+                    name=player.title, url="https://www.twitch.tv/noahabc12345"))
+
                 while voice_client.is_playing():
                     await asyncio.sleep(1)
 
@@ -118,6 +121,8 @@ class Musical(commands.Cog):
                     query = queue[0]
                 else:
                     await voice_client.disconnect()
+                    await self.bot.change_presence(activity=discord.Activity(
+                        type=discord.ActivityType.watching, name="Nincord"))
             else:
                 await interaction.response.send_message(f"Your music, `{query}`, is added"
                     + " to the queue!")
@@ -165,6 +170,8 @@ class Musical(commands.Cog):
             if voice_client.is_playing:
                 interaction.guild.voice_client.stop()
                 await voice_client.disconnect()
+                await self.bot.change_presence(activity=discord.Activity(
+                        type=discord.ActivityType.watching, name="Nincord"))
 
                 queue = []
 
