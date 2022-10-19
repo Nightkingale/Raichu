@@ -30,8 +30,6 @@ class Gaming(commands.Cog):
             member = interaction.user
 
         tag_link = f"https://tag.rc24.xyz/{member.id}/tag.max.png?randomizer={random.random()}"
-
-        await interaction.response.defer()
         
         async with aiohttp.ClientSession() as session:
             async with session.get(tag_link) as request:
@@ -43,10 +41,10 @@ class Gaming(commands.Cog):
                     embed.set_footer(text="This feature is powered by an external service!")
                     embed.set_image(url=tag_link)
 
-                    await interaction.followup.send("A RiiTag has been found! "
-                        + "Here's what it looks like.", embed=embed)
+                    await interaction.response.send_message("A RiiTag has been found! "
+                       + "Here's what it looks like.", embed=embed)
                 else:
-                    await interaction.followup.send("There is no associated RiiTag for this account!"
+                    await interaction.response.send_message("There is no associated RiiTag for this account!"
                         + " To set one up, visit <https://tag.rc24.xyz/> for more information about RiiTags"
                         + " and how they can be used with a modified Wii or Wii U console.", 
                         ephemeral=True, view=RiiTag())
