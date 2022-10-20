@@ -4,6 +4,49 @@ import random
 
 from discord import app_commands
 from discord.ext import commands
+from json import loads
+from pathlib import Path
+
+shop_list = []
+page_count = 0
+
+
+class Fortnite(discord.ui.View):
+    async def fortnite_item_shop(shop_list, page_count):
+        embed = discord.Embed(title=f"Fortnite Cosmetic Shop ({page_count + 1}"
+            + f" of {len(shop_list)} Items)", description="A catalog showcasing every"
+            + " currently purchasable Fortnite cosmetic.", color=0xffff00)
+        embed.add_field(name="Name", value=shop_list[page_count]["name"], inline=True)
+        embed.add_field(name="Price", value=shop_list[page_count]["vBucks"], inline=True)
+        embed.add_field(name="Category", value=shop_list[page_count]["storeCategory"], inline=True)
+        embed.set_footer(text="This feature is powered by an external service!")
+        embed.set_thumbnail(url=shop_list[page_count]["imageUrl"])
+        return embed
+
+    @discord.ui.button(label="Previous Item", emoji="\U00002B05")
+    async def previous_click(self, interaction: discord.Interaction, button: discord.ui.Button):
+        global page_count
+        global shop_list
+        if page_count != 0:
+            page_count -= 1
+        else:
+            page_count = len(shop_list) - 1
+
+        embed = await Fortnite.fortnite_item_shop(shop_list, page_count)
+        await interaction.response.edit_message(embed=embed)
+        
+    @discord.ui.button(label="Next Item", emoji="\U000027A1")
+    async def next_click(self, interaction: discord.Interaction, button: discord.ui.Button):
+        global page_count
+        global shop_list
+        
+        if page_count != len(shop_list) - 1:
+            page_count += 1
+        else:
+            page_count = 0
+
+        embed = await Fortnite.fortnite_item_shop(shop_list, page_count)
+        await interaction.response.edit_message(embed=embed)
 
 
 class Nintendo(discord.ui.View):
@@ -21,6 +64,29 @@ class Gaming(commands.Cog):
 
     game_group = app_commands.Group(name="game",
         description="Commands for gaming services.")
+
+    @game_group.command()
+    async def fortnite(self, interaction: discord.Interaction):
+        "Shows the current Fortnite: Battle Royale cosmetic shop."
+        secrets = loads(Path("secrets.json").read_text())
+        headers = {"TRN-Api-Key": secrets["TRACKER_KEY"]}
+        shop_link = "https://api.fortnitetracker.com/v1/store"
+
+        async with self.session.get(shop_link, headers=headers) as response:
+            await interaction.response.defer()
+            item_shop = await response.json()
+            
+            global shop_list
+            global page_count
+            shop_list = []
+            page_count = 0
+
+            for item in item_shop:
+                shop_list.append(item)
+
+        embed = await Fortnite.fortnite_item_shop(shop_list, page_count)
+        await interaction.followup.send("Here's the current Fortnite cosmetic shop!",
+            embed=embed, view=Fortnite())
 
     @game_group.command()
     @app_commands.describe(
