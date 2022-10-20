@@ -6,7 +6,7 @@ from discord import app_commands
 from discord.ext import commands
 
 
-class RiiTag(discord.ui.View):
+class Nintendo(discord.ui.View):
     def __init__(self):
         super().__init__()
         
@@ -24,8 +24,8 @@ class Gaming(commands.Cog):
     @game_group.command()
     @app_commands.describe(
         member="The member whose RiiTag should be searched for.")
-    async def riitag(self, interaction: discord.Interaction, member: discord.Member = None):
-        "Show your RiiTag through the RiiConnect24 service."
+    async def nintendo(self, interaction: discord.Interaction, member: discord.Member = None):
+        "Shows your RiiTag through the RiiConnect24 service."
         if member == None:
             member = interaction.user
 
@@ -48,6 +48,7 @@ class Gaming(commands.Cog):
                         + " To set one up, visit <https://tag.rc24.xyz/> for more information about RiiTags"
                         + " and how they can be used with a modified Wii or Wii U console.", 
                         ephemeral=True, view=RiiTag())
+                    ephemeral=True, view=Nintendo())
 
 
 async def setup(bot: commands.Bot):
