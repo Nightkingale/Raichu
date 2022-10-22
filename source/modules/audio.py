@@ -74,7 +74,7 @@ class Audio(commands.Cog):
     async def play(self, interaction: discord.Interaction, *, query: str):
         "Plays music in the current voice channel."
         if 'https://open.spotify.com/' in query:
-            self.spotify(interaction=interaction,query=query)
+            await self.spotify(interaction=interaction,query=query)
         else:
             if queue == []:
                 queue.append(query)
@@ -205,12 +205,12 @@ class Audio(commands.Cog):
      messageBytes = message.encode('ascii')
      base64Bytes = base64.b64encode(messageBytes)
      base64Message = base64Bytes.decode('ascii')
-
+     session = aiohttp.ClientSession()
 
      headers['Authorization'] = f"Basic {base64Message}"
      data['grant_type'] = "client_credentials"
 
-     async with self.session.get(url, headers=headers, data=data) as response:
+     async with session.get(url, headers=headers, data=data) as response:
             r = await response.json()
             token = r['access_token']
 
@@ -220,7 +220,7 @@ class Audio(commands.Cog):
           ALBUM_API_URL = f'https://api.spotify.com/v1/albums/{ALBUM_ID}/tracks?market=DE'
           headers = {'accept': 'application/json', 'content-type': 'application/json', "Authorization": f'Bearer {token}'}
 
-          async with self.session.get(ALBUM_API_URL, headers=headers) as response:
+          async with session.get(ALBUM_API_URL, headers=headers) as response:
                albumJSON = await response.json()
 
           alb = json.dumps(albumJSON)
@@ -233,7 +233,7 @@ class Audio(commands.Cog):
           TRACK_API_URL = f'https://api.spotify.com/v1/tracks/{TRACK_ID}?market=de'
           headers = {'accept': 'application/json', 'content-type': 'application/json', "Authorization": f'Bearer {token}'}
 
-          async with self.session.get(ALBUM_API_URL, headers=headers) as response:
+          async with session.get(ALBUM_API_URL, headers=headers) as response:
                trackJSON = await response.json()
 
           track = json.dumps(trackJSON)
