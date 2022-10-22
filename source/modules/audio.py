@@ -116,7 +116,9 @@ class Audio(commands.Cog):
                 while voice_client.is_playing():
                     await asyncio.sleep(1)
 
-                queue.pop(0)
+                if not (len(queue) == 0 or len(queue) < 0):
+                    queue.pop(0)
+
                 if len(queue) > 0:
                     query = queue[0]
                 else:
