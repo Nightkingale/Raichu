@@ -20,7 +20,7 @@ class Update(commands.Cog):
                 await self.bot.change_presence(status=discord.Status.do_not_disturb)
                 subprocess.call(["git", "pull", "origin", "master"])
 
-                main_path = f'[\'"{sys.argv[0]}"\']'
+                main_path = f'[\'{sys.argv[0]}\']'
                 main_path = ast.literal_eval(main_path)
 
                 await message.channel.send("All available changes have been pulled!"
