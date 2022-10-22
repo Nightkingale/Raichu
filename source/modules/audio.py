@@ -210,7 +210,7 @@ class Audio(commands.Cog):
      headers['Authorization'] = f"Basic {base64Message}"
      data['grant_type'] = "client_credentials"
 
-     async with session.get(url, headers=headers, data=data) as response:
+     async with session.post(url, headers=headers, data=data) as response:
             r = await response.json()
             token = r['access_token']
 
@@ -233,7 +233,7 @@ class Audio(commands.Cog):
           TRACK_API_URL = f'https://api.spotify.com/v1/tracks/{TRACK_ID}?market=de'
           headers = {'accept': 'application/json', 'content-type': 'application/json', "Authorization": f'Bearer {token}'}
 
-          async with session.get(ALBUM_API_URL, headers=headers) as response:
+          async with session.get(TRACK_API_URL, headers=headers) as response:
                trackJSON = await response.json()
 
           track = json.dumps(trackJSON)
