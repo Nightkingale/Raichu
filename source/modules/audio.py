@@ -230,8 +230,9 @@ class Audio(commands.Cog):
           alb = json.dumps(albumJSON)
           tracks = json.loads(alb)
 
-          for i in range(len(tracks["items"])):
-            await self.playcmd(interaction= interaction, query = tracks["items"][i]["artists"][0]["name"] + ' - ' + tracks["items"][i]["name"])
+          await interaction.response.send_message("Adding all Albums songs is not supported, playing the first song of the Album instead")
+        
+          await self.playcmd(interaction= interaction, query = tracks["items"][0]["artists"][0]["name"] + ' - ' + tracks["items"][0]["name"])
      elif '/track/' in query: # Call play with query
           TRACK_ID = query.split('/')[4].split('?')[0]
           TRACK_API_URL = f'https://api.spotify.com/v1/tracks/{TRACK_ID}?market=de'
