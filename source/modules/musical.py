@@ -110,8 +110,8 @@ class Musical(commands.Cog):
                 except discord.errors.InteractionResponded:
                     await interaction.channel.send("Your music is about to play!", embed=embed)
 
-                await self.bot.change_presence(activity=discord.Streaming(
-                    name=player.title, url="https://www.twitch.tv/noahabc12345"))
+                await self.bot.change_presence(activity=discord.Activity(
+                    type=discord.ActivityType.listening, name=player.title))
 
                 while voice_client.is_playing():
                     await asyncio.sleep(1)
