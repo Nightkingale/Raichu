@@ -57,7 +57,7 @@ class YTDLSource(discord.PCMVolumeTransformer):
             **ffmpeg_options), data=data)
 
 
-class Musical(commands.Cog):
+class Audio(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
@@ -183,4 +183,4 @@ class Musical(commands.Cog):
 
 
 async def setup(bot: commands.Bot):
-    await bot.add_cog(Musical(bot), guilds=[discord.Object(id=450846070025748480)])
+    await bot.add_cog(Audio(bot), guilds=[discord.Object(id=450846070025748480)])

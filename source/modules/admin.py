@@ -4,7 +4,7 @@ from discord import app_commands
 from discord.ext import commands
 
 
-class Moderate(commands.Cog):
+class Admin(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
@@ -53,4 +53,4 @@ class Moderate(commands.Cog):
 
 
 async def setup(bot: commands.Bot):
-    await bot.add_cog(Moderate(bot), guilds=[discord.Object(id=450846070025748480)])
+    await bot.add_cog(Admin(bot), guilds=[discord.Object(id=450846070025748480)])

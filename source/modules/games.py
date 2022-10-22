@@ -57,7 +57,7 @@ class Nintendo(discord.ui.View):
         self.add_item(discord.ui.Button(label='Wii U Hacks Guide', url="https://wiiu.hacks.guide/"))
 
         
-class Gaming(commands.Cog):
+class Games(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.session = aiohttp.ClientSession()
@@ -118,4 +118,4 @@ class Gaming(commands.Cog):
 
 
 async def setup(bot: commands.Bot):
-    await bot.add_cog(Gaming(bot), guilds=[discord.Object(id=450846070025748480)])
+    await bot.add_cog(Games(bot), guilds=[discord.Object(id=450846070025748480)])

@@ -7,14 +7,14 @@ from discord.app_commands import Choice
 from subprocess import check_output
 
 
-class Universal(commands.Cog):
+class Inform(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
-    info_group = app_commands.Group(name="info",
+    inform_group = app_commands.Group(name="inform",
         description="Commands for miscellaneous information.")
 
-    @info_group.command()
+    @inform_group.command()
     async def build(self, interaction: discord.Interaction):
         "Shows information regarding the bot."
         commit = os.environ.get("COMMIT_SHA", "Unknown")
@@ -47,7 +47,7 @@ class Universal(commands.Cog):
         await interaction.response.send_message("Here's some information about me!",
             embed=embed)
 
-    @info_group.command()
+    @inform_group.command()
     @app_commands.choices(server=[
         Choice(name="Nincord", value="mYjeaZQ"),
         Choice(name="Gary's homebrew stuff", value="geY4G2NZK9"),
@@ -61,4 +61,4 @@ class Universal(commands.Cog):
 
 
 async def setup(bot: commands.Bot):
-    await bot.add_cog(Universal(bot), guilds=[discord.Object(id=450846070025748480)])
+    await bot.add_cog(Inform(bot), guilds=[discord.Object(id=450846070025748480)])
