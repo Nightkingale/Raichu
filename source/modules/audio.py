@@ -76,67 +76,71 @@ class Audio(commands.Cog):
         if 'https://open.spotify.com/' in query:
             await self.spotify(interaction=interaction,query=query)
         else:
-            if queue == []:
-                queue.append(query)
+            await self.playcmd(interaction=interaction, query=query)
+            
+    async def playcmd(self, interaction: discord.Interaction, *, query:str):
 
-            while queue != []:
-                if self.bot.voice_clients == []:
-                    try:
-                        channel = interaction.user.voice.channel
-                        voice_client = await channel.connect()
-                    except AttributeError:
-                        return await interaction.response.send_message(
-                            "Please join a voice channel to use this command!")
-                    except ClientException:
-                        await interaction.guild.voice_client.disconnect()
-                        voice_client = await interaction.user.voice.channel.connect()
+        if queue == []:
+            queue.append(query)
+
+        while queue != []:
+            if self.bot.voice_clients == []:
+                try:
+                    channel = interaction.user.voice.channel
+                    voice_client = await channel.connect()
+                except AttributeError:
+                    return await interaction.response.send_message(
+                        "Please join a voice channel to use this command!")
+                except ClientException:
+                    await interaction.guild.voice_client.disconnect()
+                    voice_client = await interaction.user.voice.channel.connect()
+            else:
+                voice_client = self.bot.voice_clients[0]
+                channel = voice_client.channel
+
+            if not voice_client.is_playing():
+                try:
+                    await interaction.response.defer()
+                except discord.errors.InteractionResponded:
+                    pass
+
+                player = await YTDLSource.from_url(query, loop=self.bot.loop)
+                voice_client.play(player)
+
+                embed = discord.Embed(title=player.title, url=player.url,
+                    description="Playing in " + voice_client.channel.name, color=0xffff00)
+                embed.set_author(name=player.uploader,
+                    icon_url="https://cdn-icons-png.flaticon.com/512/3844/3844724.png")
+                embed.set_thumbnail(url=player.thumbnail)
+                embed.add_field(name="Duration", value=datetime.timedelta(
+                    seconds=player.duration), inline=True)
+
+                embed.set_footer(text="This was published on " +
+                    datetime.datetime.strptime(player.upload_date, "%Y%m%d").strftime("%m/%d/%Y") + "!")
+                try:
+                    await interaction.followup.send("Your music is about to play!", embed=embed)
+                except discord.errors.InteractionResponded:
+                    await interaction.channel.send("Your music is about to play!", embed=embed)
+
+                await self.bot.change_presence(activity=discord.Activity(
+                    type=discord.ActivityType.listening, name=player.title))
+
+                while voice_client.is_playing():
+                    await asyncio.sleep(1)
+
+                if not (len(queue) == 0 or len(queue) < 0):
+                    queue.pop(0)
+
+                if len(queue) > 0:
+                    query = queue[0]
                 else:
-                    voice_client = self.bot.voice_clients[0]
-                    channel = voice_client.channel
-
-                if not voice_client.is_playing():
-                    try:
-                        await interaction.response.defer()
-                    except discord.errors.InteractionResponded:
-                        pass
-
-                    player = await YTDLSource.from_url(query, loop=self.bot.loop)
-                    voice_client.play(player)
-
-                    embed = discord.Embed(title=player.title, url=player.url,
-                        description="Playing in " + voice_client.channel.name, color=0xffff00)
-                    embed.set_author(name=player.uploader,
-                        icon_url="https://cdn-icons-png.flaticon.com/512/3844/3844724.png")
-                    embed.set_thumbnail(url=player.thumbnail)
-                    embed.add_field(name="Duration", value=datetime.timedelta(
-                        seconds=player.duration), inline=True)
-
-                    embed.set_footer(text="This was published on " +
-                        datetime.datetime.strptime(player.upload_date, "%Y%m%d").strftime("%m/%d/%Y") + "!")
-                    try:
-                        await interaction.followup.send("Your music is about to play!", embed=embed)
-                    except discord.errors.InteractionResponded:
-                        await interaction.channel.send("Your music is about to play!", embed=embed)
-
+                    await voice_client.disconnect()
                     await self.bot.change_presence(activity=discord.Activity(
-                        type=discord.ActivityType.listening, name=player.title))
-
-                    while voice_client.is_playing():
-                        await asyncio.sleep(1)
-
-                    if not (len(queue) == 0 or len(queue) < 0):
-                        queue.pop(0)
-
-                    if len(queue) > 0:
-                        query = queue[0]
-                    else:
-                        await voice_client.disconnect()
-                        await self.bot.change_presence(activity=discord.Activity(
-                            type=discord.ActivityType.watching, name="Nincord"))
-                else:
-                    await interaction.response.send_message(f"Your music, `{query}`, is added"
-                        + " to the queue!")
-                    return queue.append(query)
+                        type=discord.ActivityType.watching, name="Nincord"))
+            else:
+                await interaction.response.send_message(f"Your music, `{query}`, is added"
+                    + " to the queue!")
+                return queue.append(query)
 
     @music_group.command()
     async def queue(self, interaction: discord.Interaction):
@@ -227,7 +231,7 @@ class Audio(commands.Cog):
           tracks = json.loads(alb)
 
           for i in range(len(tracks["items"])):
-               self.play(interaction= interaction, query = tracks["items"][i]["artists"][0]["name"] + ' - ' + tracks["items"][i]["name"])
+            await self.playcmd(interaction= interaction, query = tracks["items"][i]["artists"][0]["name"] + ' - ' + tracks["items"][i]["name"])
      elif '/track/' in query: # Call play with query
           TRACK_ID = query.split('/')[4].split('?')[0]
           TRACK_API_URL = f'https://api.spotify.com/v1/tracks/{TRACK_ID}?market=de'
@@ -239,7 +243,7 @@ class Audio(commands.Cog):
           track = json.dumps(trackJSON)
           trackInfo = json.loads(track)
 
-          self.play(interaction= interaction, query = trackInfo['artists'][0]['name'] + ' - ' + trackInfo['name'])
+          await self.playcmd(interaction= interaction, query = trackInfo['artists'][0]['name'] + ' - ' + trackInfo['name'])
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(Audio(bot), guilds=[discord.Object(id=450846070025748480)])
