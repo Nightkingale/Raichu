@@ -52,7 +52,6 @@ class Fortnite(discord.ui.View):
 class Nintendo(discord.ui.View):
     def __init__(self):
         super().__init__()
-        
         self.add_item(discord.ui.Button(label='Wii Guide', url="https://wii.guide/"))
         self.add_item(discord.ui.Button(label='Wii U Hacks Guide', url="https://wiiu.hacks.guide/"))
 
@@ -69,7 +68,7 @@ class Games(commands.Cog):
     async def fortnite(self, interaction: discord.Interaction):
         "Shows the current Fortnite: Battle Royale cosmetic shop."
         secrets = loads(Path("secrets.json").read_text())
-        headers = {"TRN-Api-Key": secrets["TRACKER_KEY"]}
+        headers = {"TRN-Api-Key": secrets["TRACKER_NETWORK_KEY"]}
         shop_link = "https://api.fortnitetracker.com/v1/store"
 
         async with self.session.get(shop_link, headers=headers) as response:

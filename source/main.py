@@ -30,4 +30,4 @@ class Manager(commands.Bot):
 secrets = loads(Path("secrets.json").read_text())
 
 bot = Manager()
-bot.run(secrets["DISCORD_TOKEN"])
+bot.run(secrets["DISCORD_BOT_TOKEN"])
