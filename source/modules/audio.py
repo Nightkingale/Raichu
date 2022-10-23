@@ -60,9 +60,11 @@ class Source(discord.PCMVolumeTransformer):
         return cls(discord.FFmpegPCMAudio(filename,
             **ffmpeg_options), data=data)
 
+
 class Player():
     def __init__(self, bot: commands.Bot):
         self.bot = bot
+        self.session = aiohttp.ClientSession()
         
     async def search(self, interaction: discord.Interaction, *, query: str):
         if queue == []:
@@ -140,12 +142,11 @@ class Player():
         message_bytes = message.encode("ascii")
         base64_bytes = base64.b64encode(message_bytes)
         base64_message = base64_bytes.decode("ascii")
-        session = aiohttp.ClientSession()
 
         headers["Authorization"] = f"Basic {base64_message}"
         data["grant_type"] = "client_credentials"
 
-        async with session.post(url, headers=headers, data=data) as response:
+        async with self.session.post(url, headers=headers, data=data) as response:
             response = await response.json()
             token = response["access_token"]
 
@@ -155,7 +156,7 @@ class Player():
             headers = {"accept": "application/json", "content-type": "application/json",
                 "Authorization": f"Bearer {token}"}
 
-            async with session.get(album_api_url, headers=headers) as response:
+            async with self.session.get(album_api_url, headers=headers) as response:
                 album_json = await response.json()
 
             album = json.dumps(album_json)
@@ -183,7 +184,7 @@ class Player():
             track_api_url = f"https://api.spotify.com/v1/tracks/{track_id}?market=US"
             headers = {"accept": "application/json", "content-type": "application/json", "Authorization": f"Bearer {token}"}
 
-            async with session.get(track_api_url, headers=headers) as response:
+            async with self.session.get(track_api_url, headers=headers) as response:
                 track_json = await response.json()
 
             track = json.dumps(track_json)
