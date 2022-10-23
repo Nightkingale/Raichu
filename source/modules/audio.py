@@ -1,10 +1,14 @@
+import aiohttp
 import asyncio
+import base64
 import datetime
 import discord
+import json
 import youtube_dl
 
 from discord import ClientException, app_commands
 from discord.ext import commands
+from pathlib import Path
 
 
 ytdl_format_options = {
@@ -31,7 +35,7 @@ ytdl = youtube_dl.YoutubeDL(ytdl_format_options)
 queue = []
 
 
-class YTDLSource(discord.PCMVolumeTransformer):
+class Source(discord.PCMVolumeTransformer):
     def __init__(self, source, *, data, volume=0.5):
         super().__init__(source, volume)
 
@@ -57,17 +61,12 @@ class YTDLSource(discord.PCMVolumeTransformer):
             **ffmpeg_options), data=data)
 
 
-class Audio(commands.Cog):
+class Player():
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-
-    music_group = app_commands.Group(name="music",
-        description="Commands for voice chat audio.")
-
-    @music_group.command()
-    @app_commands.describe(query="The music you would like to play.")
-    async def play(self, interaction: discord.Interaction, *, query: str):
-        "Plays music in the current voice channel."
+        self.session = aiohttp.ClientSession()
+        
+    async def search(self, interaction: discord.Interaction, *, query: str):
         if queue == []:
             queue.append(query)
 
@@ -92,7 +91,7 @@ class Audio(commands.Cog):
                 except discord.errors.InteractionResponded:
                     pass
 
-                player = await YTDLSource.from_url(query, loop=self.bot.loop)
+                player = await Source.from_url(query, loop=self.bot.loop)
                 voice_client.play(player)
 
                 embed = discord.Embed(title=player.title, url=player.url,
@@ -129,6 +128,91 @@ class Audio(commands.Cog):
                 await interaction.response.send_message(f"Your music, `{query}`, is added"
                     + " to the queue!")
                 return queue.append(query)
+
+    async def spotify(self, interaction: discord.Interaction, *, query: str):
+        secrets = json.loads(Path("secrets.json").read_text())
+        url = "https://accounts.spotify.com/api/token"
+
+        headers = {}
+        data = {}
+        client_id = secrets["SPOTIFY_CLIENT_ID"]
+        client_secret = secrets["SPOTIFY_CLIENT_SECRET"]
+        
+        message = f"{client_id}:{client_secret}"
+        message_bytes = message.encode("ascii")
+        base64_bytes = base64.b64encode(message_bytes)
+        base64_message = base64_bytes.decode("ascii")
+
+        headers["Authorization"] = f"Basic {base64_message}"
+        data["grant_type"] = "client_credentials"
+
+        async with self.session.post(url, headers=headers, data=data) as response:
+            response = await response.json()
+            token = response["access_token"]
+
+        if "/album/" in query:
+            album_id = query.split("/")[4].split("?")[0]
+            album_api_url = f"https://api.spotify.com/v1/albums/{album_id}/tracks?market=US"
+            headers = {"accept": "application/json", "content-type": "application/json",
+                "Authorization": f"Bearer {token}"}
+
+            async with self.session.get(album_api_url, headers=headers) as response:
+                album_json = await response.json()
+
+            album = json.dumps(album_json)
+            tracks = json.loads(album)
+
+            await interaction.response.send_message(f"{len(tracks['items'])} tracks"
+                + " were found through the provided Spotify album!")
+            if queue == []:
+                if len(tracks["items"]) > 1:
+                    for i in (range(len(tracks["items"]) - 1)):
+                        query = tracks["items"][i + 1]["artists"][0]["name"] + " - " + tracks["items"][i + 1]["name"]
+                        await interaction.channel.send(f"Your music, `{query}`, is added"
+                                + " to the queue!")
+                        queue.append(query)
+                query = tracks["items"][0]["artists"][0]["name"] + " - " + tracks["items"][0]["name"]
+                await self.search(interaction=interaction, query=query)
+            else:
+                for i in (range(len(tracks["items"]))):
+                    query = tracks["items"][i]["artists"][0]["name"] + " - " + tracks["items"][i]["name"]
+                    await interaction.channel.send(f"Your music, `{query}`, is added"
+                            + " to the queue!")
+                    queue.append(query)
+        elif "/track/" in query:
+            track_id = query.split("/")[4].split("?")[0]
+            track_api_url = f"https://api.spotify.com/v1/tracks/{track_id}?market=US"
+            headers = {"accept": "application/json", "content-type": "application/json", "Authorization": f"Bearer {token}"}
+
+            async with self.session.get(track_api_url, headers=headers) as response:
+                track_json = await response.json()
+
+            track = json.dumps(track_json)
+            track_info = json.loads(track)
+            query = track_info["artists"][0]["name"] + " - " + track_info["name"]
+            if queue != []:
+                await interaction.response.send_message(f"Your music, `{query}`, is added"
+                    + " to the queue!")
+                queue.append(query)
+            else:
+                await self.search(interaction=interaction, query=query)
+
+
+class Audio(commands.Cog):
+    def __init__(self, bot: commands.Bot):
+        self.bot = bot
+
+    music_group = app_commands.Group(name="music",
+        description="Commands for voice chat audio.")
+
+    @music_group.command()
+    @app_commands.describe(query="The music you would like to play.")
+    async def play(self, interaction: discord.Interaction, *, query: str):
+        "Plays music in the current voice channel."
+        if 'https://open.spotify.com/' in query:
+            await Player(self.bot).spotify(interaction=interaction, query=query)
+        else:
+            await Player(self.bot).search(interaction=interaction, query=query)
 
     @music_group.command()
     async def queue(self, interaction: discord.Interaction):
@@ -182,7 +266,6 @@ class Audio(commands.Cog):
                 await interaction.response.send_message("There is no currently playing music!")
         except AttributeError:
             await interaction.response.send_message("There is no currently playing music!")
-
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(Audio(bot), guilds=[discord.Object(id=450846070025748480)])
