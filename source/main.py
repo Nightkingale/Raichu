@@ -20,6 +20,7 @@ class Manager(commands.Bot):
             if filename.endswith(".py"):
                 await self.load_extension(f"modules.{filename[:-3]}")
         await bot.tree.sync()
+        await bot.tree.sync(guild=discord.Object(id=450846070025748480))
 
     async def on_ready(self):
         activity = discord.Activity(
