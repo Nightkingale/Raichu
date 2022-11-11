@@ -268,4 +268,4 @@ class Audio(commands.Cog):
             await interaction.response.send_message("There is no currently playing music!")
 
 async def setup(bot: commands.Bot):
-    await bot.add_cog(Audio(bot))
+    await bot.add_cog(Audio(bot), guilds=[discord.Object(id=450846070025748480)])

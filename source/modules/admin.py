@@ -52,4 +52,4 @@ class Admin(commands.Cog):
             embed=embed, ephemeral=True)
 
 async def setup(bot: commands.Bot):
-    await bot.add_cog(Admin(bot))
+    await bot.add_cog(Admin(bot), guilds=[discord.Object(id=450846070025748480)])
