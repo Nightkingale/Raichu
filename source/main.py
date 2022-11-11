@@ -26,7 +26,6 @@ class Manager(commands.Bot):
             name="Nincord", type=discord.ActivityType.watching)
         await bot.change_presence(activity=activity)
 
-
 secrets = loads(Path("secrets.json").read_text())
 
 bot = Manager()

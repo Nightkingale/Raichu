@@ -115,6 +115,5 @@ class Games(commands.Cog):
                     + " and how they can be used with a modified Wii or Wii U console.", 
                     ephemeral=True, view=Nintendo())
 
-
 async def setup(bot: commands.Bot):
-    await bot.add_cog(Games(bot), guilds=[discord.Object(id=450846070025748480)])
+    await bot.add_cog(Games(bot))

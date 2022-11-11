@@ -31,6 +31,5 @@ class Update(commands.Cog):
                 
                 os.execv(sys.executable, ["python"] + main_path)
 
-
 async def setup(bot: commands.Bot):
-    await bot.add_cog(Update(bot), guilds=[discord.Object(id=450846070025748480)])
+    await bot.add_cog(Update(bot))

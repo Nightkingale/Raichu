@@ -51,6 +51,5 @@ class Admin(commands.Cog):
         await interaction.response.send_message("Your message has been sent!",
             embed=embed, ephemeral=True)
 
-
 async def setup(bot: commands.Bot):
-    await bot.add_cog(Admin(bot), guilds=[discord.Object(id=450846070025748480)])
+    await bot.add_cog(Admin(bot))
