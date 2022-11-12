@@ -29,7 +29,10 @@ class Update(commands.Cog):
                 await message.channel.send("All available changes have been pulled!"
                 + " A brief restart will occur, but no action should be necessary.")
                 
-                os.execv(sys.executable, ["python"] + main_path)
+                if os.name == "posix":
+                    os.execv(sys.executable, ["python3"] + main_path)
+                if os.name == "nt":
+                    os.execv(sys.executable, ["python"] + main_path)
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(Update(bot))
