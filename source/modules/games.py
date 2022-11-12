@@ -5,15 +5,14 @@ import random
 from discord import app_commands
 from discord.ext import commands
 
-shop_list = []
-page_count = 0
-
 
 class Nintendo(discord.ui.View):
     def __init__(self):
         super().__init__()
-        self.add_item(discord.ui.Button(label='Wii Guide', url="https://wii.guide/"))
-        self.add_item(discord.ui.Button(label='Wii U Hacks Guide', url="https://wiiu.hacks.guide/"))
+        self.add_item(discord.ui.Button(
+            label='Wii Guide', url="https://wii.guide/"))
+        self.add_item(discord.ui.Button(
+            label='Wii U Hacks Guide', url="https://wiiu.hacks.guide/"))
 
         
 class Games(commands.Cog):
