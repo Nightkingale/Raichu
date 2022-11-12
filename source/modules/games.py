@@ -27,7 +27,7 @@ class Games(commands.Cog):
     @game_group.command()
     @app_commands.describe(
         member="The member whose RiiTag should be searched for.")
-    async def nintendo(self, interaction: discord.Interaction, member: discord.Member = None):
+    async def riitag(self, interaction: discord.Interaction, member: discord.Member = None):
         "Shows your RiiTag through the RiiConnect24 service."
         if member == None:
             member = interaction.user
@@ -50,7 +50,7 @@ class Games(commands.Cog):
                 await interaction.response.send_message("There is no associated RiiTag for this account!"
                     + " To set one up, visit <https://tag.rc24.xyz/> for more information about RiiTags"
                     + " and how they can be used with a modified Wii or Wii U console.", 
-                    ephemeral=True, view=Nintendo())
+                    view=Nintendo())
 
 async def setup(bot: commands.Bot):
-    await bot.add_cog(Games(bot), guilds=[discord.Object(id=450846070025748480)])
+    await bot.add_cog(Games(bot))
