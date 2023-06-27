@@ -34,7 +34,8 @@ class Games(commands.Cog):
         tag_link = f"https://tag.rc24.xyz/{member.id}/tag.max.png?randomizer={random.random()}"
         
         async with self.session.get(tag_link) as response:
-            if response.headers["content-type"] == "image/png":
+            # Check if the response from the site actually contains an image.
+            if response.status == 200 and response.headers["content-type"] == "image/png":
                 await interaction.response.defer()
                 embed = discord.Embed(title=f"{member.display_name}'s RiiTag (via RiiConnect24)",
                     description="A showcase of recently played games on Nintendo Wii and Wii U.",
