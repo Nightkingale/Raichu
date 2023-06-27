@@ -27,10 +27,9 @@ class Manager(commands.Bot):
             name="Nincord", type=discord.ActivityType.watching)
         await bot.change_presence(activity=activity)
 
-secrets = loads(Path("secrets.json").read_text())
-
-# If secrets.json doesn't exist, get the variable from Heroku.
-if secrets is None:
+try:
+    secrets = loads(Path("secrets.json").read_text())
+except FileNotFoundError:
     secrets = {
         "DISCORD_BOT_TOKEN": os.environ["DISCORD_BOT_TOKEN"]
     }
