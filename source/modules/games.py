@@ -9,6 +9,7 @@ from discord.ext import commands
 class Nintendo(discord.ui.View):
     def __init__(self):
         super().__init__()
+        # Add buttons for guides to the view.
         self.add_item(discord.ui.Button(
             label='Wii Guide', url="https://wii.guide/"))
         self.add_item(discord.ui.Button(
@@ -31,6 +32,7 @@ class Games(commands.Cog):
         if member == None:
             member = interaction.user
 
+        # Discord cache is wonky, so we need to add a randomizer to the URL.
         tag_link = f"https://tag.rc24.xyz/{member.id}/tag.max.png?randomizer={random.random()}"
         
         async with self.session.get(tag_link) as response:

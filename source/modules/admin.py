@@ -18,8 +18,9 @@ class Admin(commands.Cog):
     async def channel(self, interaction: discord.Interaction, recipient: discord.TextChannel,
         message: str):
         "Sends a message to a specified channel."
-        await recipient.send(message)
+        await recipient.send(message) # Send the message
 
+        # Sends a message to the channel that the command specifies.
         embed = discord.Embed(title=f"Sent to #{recipient}",
             description="A preview of your sent message.", color=0xffff00)
         embed.set_author(name=interaction.user.name,
@@ -40,8 +41,9 @@ class Admin(commands.Cog):
     async def member(self, interaction: discord.Interaction, recipient: discord.Member,
         message: str):
         "Sends a message to a specified member."
-        await recipient.send(message)
+        await recipient.send(message) # Send the message
 
+        # Sends a direct message to the user that the command specifies.
         embed = discord.Embed(title=f"Sent to {recipient.name}",
             description="A preview of your sent message.", color=0xffff00)
         embed.set_author(name=interaction.user.name,

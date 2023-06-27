@@ -17,22 +17,27 @@ class Manager(commands.Bot):
 
     async def setup_hook(self):
         for filename in os.listdir("./source/modules"):
+            # Load all of the modules in the modules folder.
             if filename.endswith(".py"):
                 await self.load_extension(f"modules.{filename[:-3]}")
+        # Sync the commands to the Discord bot's tree.
         await bot.tree.sync()
         await bot.tree.sync(guild=discord.Object(id=450846070025748480))
 
     async def on_ready(self):
+        # Set the bot's activity.
         activity = discord.Activity(
             name="Nincord", type=discord.ActivityType.watching)
         await bot.change_presence(activity=activity)
 
 try:
+    # Attempt to load the secrets from a file.
     secrets = loads(Path("secrets.json").read_text())
 except FileNotFoundError:
     secrets = {
+        # This is used as a fallback when the secrets file doesn't exist.
         "DISCORD_BOT_TOKEN": os.environ["DISCORD_BOT_TOKEN"]
     }
 
-bot = Manager()
+bot = Manager() # Run the bot.
 bot.run(secrets["DISCORD_BOT_TOKEN"])

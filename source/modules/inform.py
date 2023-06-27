@@ -22,11 +22,13 @@ class Inform(commands.Cog):
 
         if commit == "Unknown" or branch == "Unknown":
             try:
+                # Fetches the commit and branch names from the git repository.
                 commit = check_output(
                     ["git", "rev-parse", "HEAD"]).decode("ascii")[:-1]
                 branch = check_output(
                     ["git", "rev-parse", "--abbrev-ref", "HEAD"]).decode()[:-1]
             except:
+                # Defaults when the git repository is not found.
                 commit = "Unknown"
                 branch = "Unknown"
 
