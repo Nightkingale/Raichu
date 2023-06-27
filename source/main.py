@@ -29,5 +29,11 @@ class Manager(commands.Bot):
 
 secrets = loads(Path("secrets.json").read_text())
 
+# If secrets.json doesn't exist, get the variable from Heroku.
+if secrets is None:
+    secrets = {
+        "DISCORD_BOT_TOKEN": os.environ["DISCORD_BOT_TOKEN"]
+    }
+
 bot = Manager()
 bot.run(secrets["DISCORD_BOT_TOKEN"])
