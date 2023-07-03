@@ -77,7 +77,7 @@ class Discuss(commands.Cog):
             if request != "":
                 async with message.channel.typing():
                     response = await self.send_to_gpt(conversation)
-                    await message.reply(response)
+                    await message.reply(response, allowed_mentions=discord.AllowedMentions.none())
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(Discuss(bot), guilds=[discord.Object(id=450846070025748480)])
