@@ -12,3 +12,4 @@ If you would like to see Raichu in action, click [here](https://discord.gg/mYjea
 I hope that I am able to express my thanks as much as possible to those who made this repository possible.
 * [Lazr1026](https://github.com/Lazr1026), for maintaining and testing Raichu's code alongside me.
 * [NicoAICP](https://github.com/NicoAICP), for kindly hosting Raichu on his own virtual private server.
+* [vgmoose](https://github.com/vgmoose), for the ChatGPT code provided [here](https://gist.github.com/vgmoose/a54408a28189b19501ed1afb7ee8d4e1), utilized in the discuss module.
