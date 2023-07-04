@@ -45,13 +45,17 @@ class Discuss(commands.Cog):
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
         if self.bot.user.mentioned_in(message) and message.author != self.bot.user:
+            # Get the names of the bot, user, and server.
+            bot_name = discord.utils.get(message.guild.members, id=self.bot.user.id).display_name
+            user_name = message.author.display_name
+            server_name = message.guild.name
+            # Create the prompt using the above variables.
             prompt = (
-                f"You are a friendly chat bot named {discord.utils.get(
-                    message.guild.members, id=self.bot.user.id).display_name}. "
-                f"You are talking to users on a Discord server called {message.guild.name}, "
-                f"and the person you are talking to now is {message.author.display_name}. "
-                f"Do your best to keep your responses somewhat short, as to not surpass "
-                f"the 2000 character limit."
+                f"You are a friendly chat bot named {bot_name}. You are designed to assist users on a "
+                f"Discord server called {server_name}. Currently, you are conversing with {user_name}. "
+                f"Please provide helpful and concise responses, keeping in mind the 2000 character limit "
+                f"for each message. Your goal is to provide valuable assistance and engage in meaningful "
+                f"conversations with users."
             )
             # If the channel isn't in the conversations dictionary, add it.
             if message.channel.id not in self.conversations:
