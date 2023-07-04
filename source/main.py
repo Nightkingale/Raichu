@@ -34,10 +34,8 @@ try:
     # Attempt to load the secrets from a file.
     secrets = loads(Path("secrets.json").read_text())
 except FileNotFoundError:
-    secrets = {
-        # This is used as a fallback when the secrets file doesn't exist.
-        "DISCORD_BOT_TOKEN": os.environ["DISCORD_BOT_TOKEN"]
-    }
+    # This is used as a fallback when the secrets file doesn't exist.
+    secrets = {"DISCORD_BOT_TOKEN": os.environ["DISCORD_BOT_TOKEN"]}
 
 bot = Manager() # Run the bot.
 bot.run(secrets["DISCORD_BOT_TOKEN"])

@@ -10,10 +10,8 @@ try:
     # Attempt to load the secrets from a file.
     secrets = loads(Path("secrets.json").read_text())
 except FileNotFoundError:
-    secrets = {
-        # This is used as a fallback when the secrets file doesn't exist.
-        "CHATGPT_API_KEY": os.environ["CHATGPT_API_KEY"]
-    }
+    # This is used as a fallback when the secrets file doesn't exist.
+    secrets = {"CHATGPT_API_KEY": os.environ["CHATGPT_API_KEY"]}
 
 class Discuss(commands.Cog):
     def __init__(self, bot: commands.Bot):
@@ -36,9 +34,9 @@ class Discuss(commands.Cog):
         }
         async with aiohttp.ClientSession() as session:
             async with session.post(
-                    "https://api.openai.com/v1/chat/completions",
-                    headers=headers,
-                    json=data
+                "https://api.openai.com/v1/chat/completions",
+                headers=headers,
+                json=data
             ) as response:
                 response.raise_for_status()
                 response_data = await response.json()
@@ -48,9 +46,12 @@ class Discuss(commands.Cog):
     async def on_message(self, message: discord.Message):
         if self.bot.user.mentioned_in(message) and message.author != self.bot.user:
             prompt = (
-                f"You are a friendly chat bot named {discord.utils.get(message.guild.members, id=self.bot.user.id).display_name}. "
-                f"You are talking to users on a Discord server called {message.guild.name}, and the person you are talking to now is {message.author.display_name}. "
-                f"Do your best to keep your responses somewhat short, as to not surpass the 2000 character limit."
+                f"You are a friendly chat bot named {discord.utils.get(
+                    message.guild.members, id=self.bot.user.id).display_name}. "
+                f"You are talking to users on a Discord server called {message.guild.name}, "
+                f"and the person you are talking to now is {message.author.display_name}. "
+                f"Do your best to keep your responses somewhat short, as to not surpass "
+                f"the 2000 character limit."
             )
             # If the channel isn't in the conversations dictionary, add it.
             if message.channel.id not in self.conversations:
