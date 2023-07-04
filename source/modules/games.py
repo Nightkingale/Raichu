@@ -24,6 +24,7 @@ class Games(commands.Cog):
     games_group = app_commands.Group(name="games",
         description="Commands for gaming services.")
 
+
     @games_group.command()
     @app_commands.describe(
         member="The member whose RiiTag should be searched for.")
@@ -31,10 +32,9 @@ class Games(commands.Cog):
         "Shows a RiiTag from the RiiConnect24 service."
         if member == None:
             member = interaction.user
-
         # Discord cache is wonky, so we need to add a randomizer to the URL.
         tag_link = f"https://tag.rc24.xyz/{member.id}/tag.max.png?randomizer={random.random()}"
-        
+        # Check if the member has a RiiTag.
         async with self.session.get(tag_link) as response:
             # Check if the response from the site actually contains an image.
             if response.status == 200 and response.headers["content-type"] == "image/png":
@@ -45,13 +45,14 @@ class Games(commands.Cog):
                 embed.set_author(name=member.name, icon_url=member.avatar)
                 embed.set_footer(text="This feature is powered by an external service!")
                 embed.set_image(url=tag_link)
-
+                # Send the embed to the channel that the command was used in.
                 await interaction.followup.send("A RiiTag has been found! "
                     + "Here's what it looks like.", embed=embed)
             else:
                 await interaction.response.send_message("There is no associated RiiTag for this account!"
                     + " To set one up, visit <https://tag.rc24.xyz/> for more information about RiiTags"
                     + " and how they can be used with a modified Wii or Wii U console.", view=Nintendo())
+
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(Games(bot), guilds=[discord.Object(id=450846070025748480)])

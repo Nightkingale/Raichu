@@ -42,6 +42,7 @@ class Discuss(commands.Cog):
                 response_data = await response.json()
                 return response_data.get("choices", [{}])[0].get("message", {}).get("content", "")
 
+
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
         if self.bot.user.mentioned_in(message) and message.author != self.bot.user:
@@ -84,6 +85,7 @@ class Discuss(commands.Cog):
                 async with message.channel.typing():
                     response = await self.send_to_gpt(conversation)
                     await message.reply(response, allowed_mentions=discord.AllowedMentions.none())
+
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(Discuss(bot), guilds=[discord.Object(id=450846070025748480)])

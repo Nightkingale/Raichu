@@ -15,6 +15,7 @@ class Manager(commands.Bot):
             application=983846918683770941
         )
 
+
     async def setup_hook(self):
         for filename in os.listdir("./source/modules"):
             # Load all of the modules in the modules folder.
@@ -24,11 +25,13 @@ class Manager(commands.Bot):
         await bot.tree.sync()
         await bot.tree.sync(guild=discord.Object(id=450846070025748480))
 
+
     async def on_ready(self):
         # Set the bot's activity.
         activity = discord.Activity(
             name="Nincord", type=discord.ActivityType.watching)
         await bot.change_presence(activity=activity)
+
 
 try:
     # Attempt to load the secrets from a file.
