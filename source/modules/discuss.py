@@ -55,7 +55,8 @@ class Discuss(commands.Cog):
                 f"Discord server called {server_name}. Currently, you are conversing with {user_name}. "
                 f"Please provide helpful and concise responses, keeping in mind the 2000 character limit "
                 f"for each message. Your goal is to provide valuable assistance and engage in meaningful "
-                f"conversations with users."
+                f"conversations with users. If possible, keep responses short and to the point, a few "
+                f"sentences at most."
             )
             # If the channel isn't in the conversations dictionary, add it.
             if message.channel.id not in self.conversations:
