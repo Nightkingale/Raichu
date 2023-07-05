@@ -1,4 +1,5 @@
 import aiohttp
+import asyncio
 import discord
 import os
 
@@ -32,15 +33,27 @@ class Discuss(commands.Cog):
             "messages": conversation,
             "model": "gpt-3.5-turbo",
         }
-        async with aiohttp.ClientSession() as session:
-            async with session.post(
-                "https://api.openai.com/v1/chat/completions",
-                headers=headers,
-                json=data
-            ) as response:
-                response.raise_for_status()
-                response_data = await response.json()
-                return response_data.get("choices", [{}])[0].get("message", {}).get("content", "")
+        # Retry the request up to 3 times if it fails.
+        retry_limit = 3
+        retry_count = 0
+        # Keep trying until the request succeeds or the retry limit is reached.
+        while True:
+            async with aiohttp.ClientSession() as session:
+                async with session.post(
+                    "https://api.openai.com/v1/chat/completions",
+                    headers=headers,
+                    json=data
+                ) as response:
+                    if response.status == 200:
+                        response_data = await response.json()
+                        return response_data.get("choices", [{}])[0].get("message", {}).get("content", "")
+                    elif response.status == 400 and retry_count < retry_limit:
+                        # Wait for a certain period of time before retrying.
+                        await asyncio.sleep(5)
+                        retry_count += 1
+                        continue
+                    else:
+                        response.raise_for_status()
 
 
     @commands.Cog.listener()
