@@ -34,7 +34,6 @@ class Discuss(commands.Cog):
             "model": "gpt-3.5-turbo",
         }
         # Retry the request up to 3 times if it fails.
-        retry_limit = 3
         retry_count = 0
         # Keep trying until the request succeeds or the retry limit is reached.
         while True:
@@ -47,10 +46,13 @@ class Discuss(commands.Cog):
                     if response.status == 200:
                         response_data = await response.json()
                         return response_data.get("choices", [{}])[0].get("message", {}).get("content", "")
-                    elif response.status == 400 and retry_count < retry_limit:
+                    elif response.status == 400 and retry_count < 3:
                         # Wait for a certain period of time before retrying.
                         await asyncio.sleep(5)
                         retry_count += 1
+                        # Clear the conversation on the final try.
+                        if retry_count == 3:
+                            conversation = conversation[-2:]
                         continue
                     else:
                         response.raise_for_status()
@@ -76,8 +78,8 @@ class Discuss(commands.Cog):
             if message.channel.id not in self.conversations:
                 self.conversations[message.channel.id] = []
             conversation = self.conversations[message.channel.id]
-            if len(conversation) > 100:
-                while len(conversation) > 100:
+            if len(conversation) > 30:
+                while len(conversation) > 30:
                     conversation.pop(0)  # Remove the oldest messages.
             # Add the prompt to the conversation.
             conversation.append({
