@@ -11,12 +11,17 @@ class Admin(commands.Cog):
     sudo_group = app_commands.Group(name="sudo",
         description="Commands for managing the bot.")
 
+    def staff_check():
+        def predicate(interaction: discord.Interaction):
+            return interaction.user.guild_permissions.manage_messages
+        return app_commands.check(predicate)
+
 
     @sudo_group.command()
     @app_commands.describe(
         recipient="The channel that will receive the message.",
         message="The message that you wish to send.")
-    @app_commands.check(lambda i: i.author.guild_permissions.manage_messages)
+    @staff_check()
     async def channel(self, interaction: discord.Interaction, recipient: discord.TextChannel,
         message: str):
         "Sends a message to a specified channel."
@@ -40,7 +45,7 @@ class Admin(commands.Cog):
     @app_commands.describe(
         recipient="The member that will receive the message.",
         message="The message that you wish to send.")
-    @app_commands.check(lambda i: i.author.guild_permissions.manage_messages)
+    @staff_check()
     async def member(self, interaction: discord.Interaction, recipient: discord.Member,
         message: str):
         "Sends a message to a specified member."
@@ -57,7 +62,7 @@ class Admin(commands.Cog):
 
 
     @sudo_group.command()
-    @app_commands.check(lambda i: i.author.guild_permissions.manage_messages)
+    @staff_check()
     async def reboot(self, interaction: discord.Interaction):
         "Reboots the bot by terminating its process."
         await interaction.response.send_message("The bot process will now be terminated.",
