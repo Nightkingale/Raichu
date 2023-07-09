@@ -8,14 +8,15 @@ class Admin(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
-    send_group = app_commands.Group(name="send",
-        description="Commands for sending messages.")
+    sudo_group = app_commands.Group(name="sudo",
+        description="Commands for managing the bot.")
 
 
-    @send_group.command()
+    @sudo_group.command()
     @app_commands.describe(
         recipient="The channel that will receive the message.",
         message="The message that you wish to send.")
+    @app_commands.check(lambda i: i.author.guild_permissions.manage_messages)
     async def channel(self, interaction: discord.Interaction, recipient: discord.TextChannel,
         message: str):
         "Sends a message to a specified channel."
@@ -35,10 +36,11 @@ class Admin(commands.Cog):
                 ephemeral=True)
 
 
-    @send_group.command()
+    @sudo_group.command()
     @app_commands.describe(
         recipient="The member that will receive the message.",
         message="The message that you wish to send.")
+    @app_commands.check(lambda i: i.author.guild_permissions.manage_messages)
     async def member(self, interaction: discord.Interaction, recipient: discord.Member,
         message: str):
         "Sends a message to a specified member."
@@ -52,6 +54,15 @@ class Admin(commands.Cog):
         # Send the message to the member that the command specifies.
         await interaction.response.send_message("Your message has been sent!",
             embed=embed, ephemeral=True)
+
+
+    @sudo_group.command()
+    @app_commands.check(lambda i: i.author.guild_permissions.manage_messages)
+    async def reboot(self, interaction: discord.Interaction):
+        "Reboots the bot by terminating its process."
+        await interaction.response.send_message("The bot process will now be terminated.",
+            ephemeral=True)
+        await self.bot.close()
 
 
 async def setup(bot: commands.Bot):
