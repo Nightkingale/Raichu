@@ -115,7 +115,6 @@ class Events(commands.Cog):
                     video_published = video_published.strftime("%B %d, %Y")
                 video_info = (video_title, video_url, author_name, author_url, author_art, video_art,
                     video_duration, video_published)
-                print(video_title)
                 new_videos.append(video_info)
             # Check if the held data is empty.
             if not last_videos:
