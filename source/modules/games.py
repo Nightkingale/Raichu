@@ -22,7 +22,7 @@ class Games(commands.Cog):
         self.session = aiohttp.ClientSession()
 
     games_group = app_commands.Group(name="games",
-        description="Commands for gaming services.")
+        description="Commands for using game services.")
 
 
     @games_group.command()

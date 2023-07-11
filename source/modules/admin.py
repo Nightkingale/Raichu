@@ -8,6 +8,8 @@ class Admin(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
+    send_group = app_commands.Group(name="send",
+        description="Commands for sending messages as the bot.")
     sudo_group = app_commands.Group(name="sudo",
         description="Commands for managing the bot.")
 
@@ -17,7 +19,7 @@ class Admin(commands.Cog):
         return app_commands.check(predicate)
 
 
-    @sudo_group.command()
+    @send_group.command()
     @app_commands.describe(
         recipient="The channel that will receive the message.",
         message="The message that you wish to send.")
@@ -41,7 +43,7 @@ class Admin(commands.Cog):
                 ephemeral=True)
 
 
-    @sudo_group.command()
+    @send_group.command()
     @app_commands.describe(
         recipient="The member that will receive the message.",
         message="The message that you wish to send.")
