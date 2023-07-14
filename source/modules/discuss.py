@@ -5,6 +5,7 @@ import os
 
 from discord.ext import commands
 from json import loads
+from modules.logger import create_logger
 from pathlib import Path
 
 try:
@@ -18,6 +19,7 @@ class Discuss(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.conversations = {}
+        self.logger = create_logger(self.__class__.__name__)
         
     # Thank you, vgmoose, for the following code snippet!
     # this function sends the text verabtim to the openai endpoint
@@ -98,6 +100,9 @@ class Discuss(commands.Cog):
             # Make sure the request isn't empty.
             if request != "":
                 async with message.channel.typing():
+                    # Log the estimation of tokens that will be used
+                    self.logger.info("Sending request to GPT-3 estimated to use "
+                        f"{len(request) + len(prompt)} tokens.")
                     response = await self.send_to_gpt(conversation)
                     await message.reply(response, allowed_mentions=discord.AllowedMentions.none())
 

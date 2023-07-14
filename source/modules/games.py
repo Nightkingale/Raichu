@@ -4,6 +4,7 @@ import random
 
 from discord import app_commands
 from discord.ext import commands
+from modules.logger import create_logger
 
 
 class Nintendo(discord.ui.View):
@@ -20,6 +21,7 @@ class Games(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.session = aiohttp.ClientSession()
+        self.logger = create_logger(self.__class__.__name__)
 
     games_group = app_commands.Group(name="games",
         description="Commands for using game services.")
@@ -39,6 +41,7 @@ class Games(commands.Cog):
             # Check if the response from the site actually contains an image.
             if response.status == 200 and response.headers["content-type"] == "image/png":
                 await interaction.response.defer()
+                self.logger.info(f"A RiiTag was fetched for {member.display_name} at {tag_link}.")
                 embed = discord.Embed(title=f"{member.display_name}'s RiiTag (via RiiConnect24)",
                     description="A showcase of recently played games on Nintendo Wii and Wii U.",
                     url="https://tag.rc24.xyz/", color=0xffff00)

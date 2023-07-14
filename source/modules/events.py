@@ -7,6 +7,7 @@ import re
 
 from bs4 import BeautifulSoup
 from discord.ext import commands
+from modules.logger import create_logger
 
 class Events(commands.Cog):
     def __init__(self, bot: commands.Bot):
@@ -14,6 +15,7 @@ class Events(commands.Cog):
         self.last_tracks = []
         self.last_videos = []
         self.last_releases = []
+        self.logger = create_logger(self.__class__.__name__)
 
     def create_embed(self, type, title, url, author_name, author_url, author_art,
         art, duration, published, buy=None):
@@ -71,11 +73,13 @@ class Events(commands.Cog):
                 new_tracks.append(track_info)
             # Check if the held data is empty.
             if not last_tracks:
+                self.logger.info("The last_tracks list is empty, so it will be filled.")
                 last_tracks = new_tracks[:]
                 return last_tracks
             for track_info in new_tracks:
                 # Compare to see if the exact data is already posted.
                 if track_info not in last_tracks:
+                    self.logger.info(f"A new SoundCloud track was scraped called {track_info[0]}.")
                     last_tracks.append(track_info)
                     embed = self.create_embed("track", *track_info)
                     channel = self.bot.get_channel(1127330813835485315)
@@ -118,11 +122,13 @@ class Events(commands.Cog):
                 new_videos.append(video_info)
             # Check if the held data is empty.
             if not last_videos:
+                self.logger.info("The last_videos list is empty, so it will be filled.")
                 last_videos = new_videos[:]
                 return last_videos
             for video_info in new_videos:
                 # Compare to see if the exact data already was posted.
                 if video_info not in last_videos:
+                    self.logger.info(f"A new YouTube video was scraped called {video_info[0]}.")
                     last_videos.append(video_info)
                     embed = self.create_embed("video", *video_info)
                     channel = self.bot.get_channel(1127330813835485315)
@@ -166,11 +172,13 @@ class Events(commands.Cog):
                 new_releases.append(release_info)
             # Check if the held data is empty.
             if not last_releases:
+                self.logger.info("The last_releases list is empty, so it will be filled.")
                 last_releases = new_releases[:]
                 return last_releases
             for release_info in new_releases:
                 # Compare to see if the exact data already was posted.
                 if release_info not in last_releases:
+                    self.logger.info(f"A new YouTube Music release was scraped called {release_info[0]}")
                     last_releases.append(release_info)
                     embed = self.create_embed("release", *release_info)
                     channel = self.bot.get_channel(1127330813835485315)
@@ -183,6 +191,7 @@ class Events(commands.Cog):
         await self.bot.wait_until_ready()
         while not self.bot.is_closed():
             async with aiohttp.ClientSession() as session:
+                self.logger.info("Checking for new tracks, videos, and releases.")
                 self.last_tracks = await self.check_new_soundcloud_tracks(session, self.last_tracks)
                 self.last_videos = await self.check_new_youtube_videos(session, self.last_videos)
                 self.last_releases = await self.check_new_youtube_music_releases(session, self.last_releases)

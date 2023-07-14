@@ -1,8 +1,10 @@
 import discord
+import logging
 import os
 
 from discord.ext import commands
 from json import loads
+from modules.logger import create_logger
 from pathlib import Path
 
 
@@ -15,12 +17,15 @@ class Manager(commands.Bot):
             application=983846918683770941
         )
 
+        self.logger = create_logger("Manager")
+
 
     async def setup_hook(self):
         for filename in os.listdir("./source/modules"):
             # Load all of the modules in the modules folder.
-            if filename.endswith(".py"):
+            if filename.endswith(".py") and not filename == "logger.py":
                 await self.load_extension(f"modules.{filename[:-3]}")
+                self.logger.info(f"Loaded {filename} successfully from the modules folder.")
         # Sync the commands to the Discord bot's tree.
         await bot.tree.sync()
         await bot.tree.sync(guild=discord.Object(id=450846070025748480))
@@ -40,5 +45,6 @@ except FileNotFoundError:
     # This is used as a fallback when the secrets file doesn't exist.
     secrets = {"DISCORD_BOT_TOKEN": os.environ["DISCORD_BOT_TOKEN"]}
 
+
 bot = Manager() # Run the bot.
-bot.run(secrets["DISCORD_BOT_TOKEN"])
+bot.run(secrets["DISCORD_BOT_TOKEN"], log_handler=None)

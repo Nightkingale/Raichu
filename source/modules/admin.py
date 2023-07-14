@@ -2,11 +2,13 @@ import discord
 
 from discord import app_commands
 from discord.ext import commands
+from modules.logger import create_logger
 
 
 class Admin(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
+        self.logger = create_logger(self.__class__.__name__)
 
     send_group = app_commands.Group(name="send",
         description="Commands for sending messages as the bot.")
@@ -41,6 +43,7 @@ class Admin(commands.Cog):
         else:
             await interaction.response.send_message("Your message has been sent!",
                 ephemeral=True)
+        self.logger.info(f"{interaction.user.name} sent a message to #{recipient}.")
 
 
     @send_group.command()
@@ -61,6 +64,7 @@ class Admin(commands.Cog):
         # Send the message to the member that the command specifies.
         await interaction.response.send_message("Your message has been sent!",
             embed=embed, ephemeral=True)
+        self.logger.info(f"{interaction.user.name} sent a message to {recipient.name}.")
 
 
     @sudo_group.command()
@@ -69,6 +73,7 @@ class Admin(commands.Cog):
         "Reboots the bot by terminating its process."
         await interaction.response.send_message("The bot process will now be terminated.",
             ephemeral=True)
+        self.logger.info(f"{interaction.user.name} has requested a reboot of the bot.")
         await self.bot.close()
 
 
