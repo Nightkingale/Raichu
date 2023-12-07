@@ -77,5 +77,22 @@ class Admin(commands.Cog):
         await self.bot.close()
 
 
+    @sudo_group.command()
+    @staff_check()
+    async def status(self, interaction: discord.Interaction, text: str = None):
+        "Change the status to the specified text, or reset it back to default."
+        if text is None:
+            activity = discord.Activity(
+                name="Nincord", type=discord.ActivityType.watching)
+            await self.bot.change_presence(activity=activity)
+            await interaction.response.send_message("The status has been reset successfully.",
+                ephemeral=True)
+        else:
+            await self.bot.change_presence(activity=discord.Game(name=text))
+            await interaction.response.send_message("The status has been changed successfully.",
+                ephemeral=True)
+        self.logger.info(f"{interaction.user.name} has changed the bot's status.")
+
+
 async def setup(bot: commands.Bot):
     await bot.add_cog(Admin(bot), guilds=[discord.Object(id=450846070025748480)])
