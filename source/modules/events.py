@@ -115,7 +115,7 @@ class Events(commands.Cog):
                     html = await response.text()
                     soup = BeautifulSoup(html, "html.parser")
                     video_published = soup.find("meta", {"itemprop": "datePublished"})
-                    video_published = datetime.datetime.strptime(video_published["content"], "%Y-%m-%d")
+                    video_published = datetime.datetime.strptime(video_published["content"], "%Y-%m-%dT%H:%M:%S%z")
                     video_published = video_published.strftime("%B %d, %Y")
                 video_info = (video_title, video_url, author_name, author_url, author_art, video_art,
                     video_duration, video_published)
@@ -165,7 +165,7 @@ class Events(commands.Cog):
                     html = await response.text()
                     soup = BeautifulSoup(html, "html.parser")
                     release_published = soup.find("meta", {"itemprop": "datePublished"})
-                    release_published = datetime.datetime.strptime(release_published["content"], "%Y-%m-%d")
+                    release_published = datetime.datetime.strptime(release_published["content"], "%Y-%m-%dT%H:%M:%S%z")
                     release_published = release_published.strftime("%B %d, %Y")
                 release_info = (release_title, release_url, author_name, author_url, author_art,
                     release_art, track_count, release_published)
