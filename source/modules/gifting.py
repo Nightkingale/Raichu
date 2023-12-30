@@ -30,14 +30,9 @@ class Gifting(commands.Cog):
     giveaway_group = app_commands.Group(name="giveaway",
         description="Commands for managing giveaways.")
 
-    def staff_check():
-        def predicate(interaction: discord.Interaction):
-            return interaction.user.guild_permissions.manage_messages
-        return app_commands.check(predicate)
-
 
     @giveaway_group.command()
-    @staff_check()
+    @app_commands.default_permissions(manage_messages=True)
     async def create(self, interaction: discord.Interaction, giveaway: str):
         "Start a new giveaway."
         # Check if the giveaway already exists.
@@ -54,7 +49,7 @@ class Gifting(commands.Cog):
 
 
     @giveaway_group.command()
-    @staff_check()
+    @app_commands.default_permissions(manage_messages=True)
     async def decide(self, interaction: discord.Interaction, giveaway: str, amount: int):
         "Decide a winner for a specified giveaway."
         # Check if the giveaway exists.

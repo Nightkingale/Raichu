@@ -14,18 +14,13 @@ class Admin(commands.Cog):
         description="Commands for sending messages as the bot.")
     sudo_group = app_commands.Group(name="sudo",
         description="Commands for managing the bot.")
-
-    def staff_check():
-        def predicate(interaction: discord.Interaction):
-            return interaction.user.guild_permissions.manage_messages
-        return app_commands.check(predicate)
-
+    
 
     @send_group.command()
     @app_commands.describe(
         recipient="The channel that will receive the message.",
         message="The message that you wish to send.")
-    @staff_check()
+    @app_commands.default_permissions(manage_messages=True)
     async def channel(self, interaction: discord.Interaction, recipient: discord.TextChannel,
         message: str):
         "Sends a message to a specified channel."
@@ -50,7 +45,7 @@ class Admin(commands.Cog):
     @app_commands.describe(
         recipient="The member that will receive the message.",
         message="The message that you wish to send.")
-    @staff_check()
+    @app_commands.default_permissions(manage_messages=True)
     async def member(self, interaction: discord.Interaction, recipient: discord.Member,
         message: str):
         "Sends a message to a specified member."
@@ -68,7 +63,7 @@ class Admin(commands.Cog):
 
 
     @sudo_group.command()
-    @staff_check()
+    @app_commands.default_permissions(manage_messages=True)
     async def reboot(self, interaction: discord.Interaction):
         "Reboots the bot by terminating its process."
         await interaction.response.send_message("The bot process will now be terminated.",
@@ -78,7 +73,7 @@ class Admin(commands.Cog):
 
 
     @sudo_group.command()
-    @staff_check()
+    @app_commands.default_permissions(manage_messages=True)
     async def status(self, interaction: discord.Interaction, text: str = None):
         "Change the status to the specified text, or reset it back to default."
         if text is None:
