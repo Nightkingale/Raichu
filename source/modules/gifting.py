@@ -31,22 +31,6 @@ class Gifting(commands.Cog):
         description="Commands for managing giveaways.")
 
 
-    @giveaway_group.command()
-    @app_commands.default_permissions(manage_messages=True)
-    async def create(self, interaction: discord.Interaction, giveaway: str):
-        "Start a new giveaway."
-        # Check if the giveaway already exists.
-        if database["Ongoing"].find_one({"_id": giveaway}):
-            await interaction.response.send_message("That giveaway already exists! Please choose a different name.",
-                ephemeral=True)
-            return
-        # Create a new giveaway.
-        database["Ongoing"].insert_one({"_id": giveaway, "host": interaction.user.id, "users": []})
-        await interaction.response.send_message(f"The **{giveaway}** giveaway has been started! "
-            + "Please use the `/giveaway decide` command to choose a winner.",
-            ephemeral=True)
-        self.logger.info(f"{interaction.user.name} has started the {giveaway} giveaway.")
-
 
     @giveaway_group.command()
     @app_commands.default_permissions(manage_messages=True)
