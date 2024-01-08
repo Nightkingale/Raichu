@@ -33,6 +33,9 @@ class Gifting(commands.Cog):
 
 
     @giveaway_group.command()
+    @app_commands.describe(
+        giveaway="The name of the giveaway to conclude.",
+        amount="The amount of winners to choose.")
     @app_commands.default_permissions(manage_messages=True)
     async def decide(self, interaction: discord.Interaction, giveaway: str, amount: int):
         "Decide a winner for a specified giveaway."
