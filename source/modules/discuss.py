@@ -62,7 +62,7 @@ class Discuss(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
-        if self.bot.user.mentioned_in(message) and message.author != self.bot.user:
+        if self.bot.user.mentioned_in(message) and message.author != self.bot.user and not message.mention_everyone:
             # Get the names of the bot, user, and server.
             bot_name = discord.utils.get(message.guild.members, id=self.bot.user.id).display_name
             user_name = message.author.display_name
