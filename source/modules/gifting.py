@@ -31,66 +31,53 @@ class Gifting(commands.Cog):
         description="Commands for managing giveaways.")
 
 
-
     @giveaway_group.command()
-    @app_commands.describe(
-        giveaway="The name of the giveaway to conclude.",
-        amount="The amount of winners to choose.")
-    @app_commands.default_permissions(manage_messages=True)
-    async def decide(self, interaction: discord.Interaction, giveaway: str, amount: int):
-        "Decide a winner for a specified giveaway."
-        # Check if the giveaway exists.
-        giveaway_entry = database["Ongoing"].find_one({"_id": giveaway})
-        if not giveaway_entry:
-            await interaction.response.send_message("That giveaway does not exist! Make sure you typed the name exactly as announced.",
+    @app_commands.choices(giveaway=[
+        app_commands.Choice(name="Music Supporter", value="Music Supporter")])
+    @app_commands.describe(giveaway="The name of the giveaway to claim.")
+    async def claim(self, interaction: discord.Interaction, giveaway: str):
+        "Claim any special gifts you might be eligible for."
+        if giveaway == "Music Supporter":
+            # If the user does not have the Music Supporter role, send an error message.
+            if not discord.utils.get(interaction.user.roles, id=1192190765288411277):
+                await interaction.response.send_message("You do not have the Music Supporter role, so you are not eligible to claim this gift.",
+                    ephemeral=True)
+                return
+            hn_giveaway = database["Certificate"].find_one({"_id": "Heavenly Night"})
+            ttt_giveaway = database["Certificate"].find_one({"_id": "To the Throwbacks"})
+            # If the user has already claimed the gift, send an error message.
+            if interaction.user.id in hn_giveaway["users"] or interaction.user.id in ttt_giveaway["users"]:
+                await interaction.response.send_message("You have already claimed this gift!",
+                    ephemeral=True)
+                return
+            # Randomly pick one code from each to give to the user.
+            hn_code = random.choice(hn_giveaway["codes"])
+            ttt_code = random.choice(ttt_giveaway["codes"])
+            # Make an embed for the gift codes.
+            embed = discord.Embed(title="Music Supporter Gift (Digital Downloads)",
+                description="Redeem: https://redeem.nightkingale.com/",
+                color=0xffff00)
+            embed.set_thumbnail(url="https://f4.bcbits.com/img/0034764402_10.jpg")
+            embed.add_field(name="Heavenly Night", value=hn_code)
+            embed.add_field(name="To the Throwbacks", value=ttt_code)
+            embed.set_footer(text="Please contact a member of the Nincord staff team if you have any issues.")
+            await interaction.response.send_message("You have successfully claimed your gift! Please check your direct messages for your gift codes.",
                 ephemeral=True)
-            return
-        # Check if the amount of winners is valid.
-        if amount < 1:
-            await interaction.response.send_message("You must choose at least one winner for the giveaway!",
-                ephemeral=True)
-            return
-        if amount > len(giveaway_entry["users"]):
-            participant_count = len(giveaway_entry["users"])
-            await interaction.response.send_message(
-                f"You cannot choose more winners than there are participants (currently {participant_count}).",
-                ephemeral=True
-            )
-            return
-        # Choose winner(s), making sure not to pick the same person twice.
-        winners = random.sample(giveaway_entry["users"], amount)
-        # Send a message to the channel congratulating and mentioning the winner(s).
-        winner_ids = [f'<@{winner_id}>' for winner_id in winners]
-        # Create an embed for the giveaway winner(s).
-        embed = discord.Embed(title=f"Winner{'s' if amount > 1 else ''} of the {giveaway} Giveaway",
-            description=f"Congratulations to the winner{'s' if amount > 1 else ''} of the giveaway!", color=0xffff00)
-        try:
-            host = await self.bot.fetch_user(giveaway_entry["host"])
-        except discord.NotFound:
-            host = interaction.user
-        embed.set_author(name=host.display_name, icon_url=host.display_avatar)
-        embed.set_thumbnail(url="https://media.tenor.com/3fBEgjA2Y6IAAAAi/giveaway-alert-giveaway.gif")
-        embed.add_field(name=f"Winner{'s' if amount > 1 else ''} ({amount} total)", value="\n".join(winner_ids))
-        embed.set_footer(text="A notification will be sent. Please contact the host to claim your gift.")
-        # Attempt to send a message to the chosen winners.
-        for winner in winner_ids:
-            winner = await self.bot.fetch_user(winner[2:-1])
-            if winner:
-                await winner.send(
-                    f"Congratulations! You have won the **{giveaway}** giveaway on the {interaction.guild.name} server!\n\n"
-                    f"Please contact the host ({host.mention}) or a member of the {interaction.guild.name} staff team "
-                    f"in order to proceed and claim your prize. If the host or a staff member has already reached out to you, "
-                    f"please disregard this message. Thank you so much for your participation!",
-                    embed=embed
-                )
-                self.logger.info(f"Sent a message to {winner.name} regarding a giveaway.")
-        # Send a message to the channel that the giveaway has ended.
-        await interaction.response.send_message(f"The results are in for the **{giveaway}** giveaway! Congratulations!",
-            embed=embed)
-        self.logger.info(f"{interaction.user.name} has decided for the {giveaway} giveaway.")
-        # Move the giveaway to Archived from Ongoing.
-        database["Archived"].replace_one({"_id": giveaway}, giveaway_entry, upsert=True)
-        database["Ongoing"].delete_one({"_id": giveaway})
+            # Attempt to send a message to the user. If it doesn't work, let the user know and stop.
+            try:
+                await interaction.user.send("Thank you so much for supporting Nightkingale's music! Please see below for your gift.",
+                    embed=embed)
+            except discord.Forbidden:
+                await interaction.followup.send("Your gift could not be sent to you! Please make sure you have direct messages enabled and try again.",
+                    ephemeral=True)
+                return
+            self.logger.info(f"{interaction.user.name} has claimed their Music Supporter gift.")
+            # Add the user to the giveaway.
+            database["Certificate"].update_one({"_id": "Heavenly Night"}, {"$push": {"users": interaction.user.id}})
+            database["Certificate"].update_one({"_id": "To the Throwbacks"}, {"$push": {"users": interaction.user.id}})
+            # Remove the code from the giveaway.
+            database["Certificate"].update_one({"_id": "Heavenly Night"}, {"$pull": {"codes": hn_code}})
+            database["Certificate"].update_one({"_id": "To the Throwbacks"}, {"$pull": {"codes": ttt_code}})
 
 
     @giveaway_group.command()
