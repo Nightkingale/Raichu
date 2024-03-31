@@ -194,7 +194,8 @@ class Events(commands.Cog):
                 try:
                     self.logger.info("Checking for new tracks, videos, and releases.")
                     self.last_tracks = await self.check_new_soundcloud_tracks(session, self.last_tracks)
-                    self.last_videos = await self.check_new_youtube_videos(session, self.last_videos)
+                    # Currently somewhat bugged, so this will be disabled until I care to fix it.
+                    # self.last_videos = await self.check_new_youtube_videos(session, self.last_videos)
                     self.last_releases = await self.check_new_youtube_music_releases(session, self.last_releases)
                 except Exception as error:
                     self.logger.error(f"An error occurred while scraping: {error}")
