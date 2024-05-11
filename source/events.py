@@ -203,8 +203,7 @@ class Events(commands.Cog):
                     self.last_releases = await self.check_new_youtube_music_releases(session, self.last_releases)
                 except Exception as error:
                     self.logger.error(f"An error occurred while scraping: {error}")
-                self.last_releases = await self.check_new_youtube_music_releases(session, self.last_releases)
-            await asyncio.sleep(60)
+            await asyncio.sleep(900)
 
 
 async def setup(bot: commands.Bot):
