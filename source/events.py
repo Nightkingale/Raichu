@@ -74,13 +74,13 @@ class Events(commands.Cog):
             # Check if the held data is empty.
             if not last_tracks:
                 self.logger.info("The last_tracks list is empty, so it will be filled.")
-                last_tracks = new_tracks[:]
+                last_tracks = [track_info[1] for track_info in new_tracks]
                 return last_tracks
-            for track_info in new_tracks:
+            for track_info[1] in new_tracks:
                 # Compare to see if the exact data is already posted.
                 if track_info not in last_tracks:
                     self.logger.info(f"A new SoundCloud track was scraped called {track_info[0]}.")
-                    last_tracks.append(track_info)
+                    last_tracks.append(track_info[1])
                     embed = self.create_embed("track", *track_info)
                     channel = self.bot.get_channel(1127330813835485315)
                     await channel.send(embed=embed)
@@ -123,13 +123,12 @@ class Events(commands.Cog):
             # Check if the held data is empty.
             if not last_videos:
                 self.logger.info("The last_videos list is empty, so it will be filled.")
-                last_videos = new_videos[:]
+                last_videos = [video_info[1] for video_info in new_videos]
                 return last_videos
             for video_info in new_videos:
-                # Compare to see if the exact data already was posted.
-                if video_info not in last_videos:
+                if video_info[1] not in last_videos:
                     self.logger.info(f"A new YouTube video was scraped called {video_info[0]}.")
-                    last_videos.append(video_info)
+                    last_videos.append(video_info[1])
                     embed = self.create_embed("video", *video_info)
                     channel = self.bot.get_channel(1127330813835485315)
                     await channel.send(embed=embed)
@@ -173,13 +172,13 @@ class Events(commands.Cog):
             # Check if the held data is empty.
             if not last_releases:
                 self.logger.info("The last_releases list is empty, so it will be filled.")
-                last_releases = new_releases[:]
+                last_releases = [release_info[1] for release_info in new_releases]
                 return last_releases
-            for release_info in new_releases:
+            for release_info[1] in new_releases:
                 # Compare to see if the exact data already was posted.
                 if release_info not in last_releases:
                     self.logger.info(f"A new YouTube Music release was scraped called {release_info[0]}")
-                    last_releases.append(release_info)
+                    last_releases.append(release_info[1])
                     embed = self.create_embed("release", *release_info)
                     channel = self.bot.get_channel(1127330813835485315)
                     await channel.send(embed=embed)
@@ -194,8 +193,7 @@ class Events(commands.Cog):
                 try:
                     self.logger.info("Checking for new tracks, videos, and releases.")
                     self.last_tracks = await self.check_new_soundcloud_tracks(session, self.last_tracks)
-                    # Currently somewhat bugged, so this will be disabled until I care to fix it.
-                    # self.last_videos = await self.check_new_youtube_videos(session, self.last_videos)
+                    self.last_videos = await self.check_new_youtube_videos(session, self.last_videos)
                     self.last_releases = await self.check_new_youtube_music_releases(session, self.last_releases)
                 except Exception as error:
                     self.logger.error(f"An error occurred while scraping: {error}")
