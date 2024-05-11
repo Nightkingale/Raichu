@@ -82,15 +82,14 @@ class Admin(commands.Cog):
     @sudo_group.command()
     @app_commands.describe(
         name="The name of the giveaway to manage.",
-        action="The action to perform on the giveaway.",
         amount="The amount of winners to choose.")
     @app_commands.choices(action=[
         app_commands.Choice(name="Start", value="start"),
         app_commands.Choice(name="End", value="end")])
     @app_commands.default_permissions(manage_messages=True)
-    async def giveaway(self, interaction: discord.Interaction, action: str, name: str, amount: int = 1):
-        "Starts or ends a giveaway."
-        if action == "start":
+    async def giveaway(self, interaction: discord.Interaction, name: str, amount: int = 0):
+        "Starts a giveaway, or ends it if amount is specified."
+        if amount < 1:
             # Check if the giveaway already exists.
             if database["Ongoing"].find_one({"_id": name}):
                 await interaction.response.send_message("That giveaway already exists! Please choose a different name.",
