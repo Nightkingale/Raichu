@@ -5,7 +5,7 @@ import os
 
 from discord.ext import commands
 from json import loads
-from modules.logger import create_logger
+from logger import create_logger
 from pathlib import Path
 
 try:

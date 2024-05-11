@@ -1,10 +1,9 @@
 import discord
-import logging
 import os
 
 from discord.ext import commands
 from json import loads
-from modules.logger import create_logger
+from logger import create_logger
 from pathlib import Path
 
 
@@ -17,14 +16,14 @@ class Manager(commands.Bot):
             application=983846918683770941
         )
 
-        self.logger = create_logger("Manager")
+        self.logger = create_logger("Main")
 
 
     async def setup_hook(self):
-        for filename in os.listdir("./source/modules"):
+        for filename in os.listdir("./source"):
             # Load all of the modules in the modules folder.
-            if filename.endswith(".py") and not filename == "logger.py":
-                await self.load_extension(f"modules.{filename[:-3]}")
+            if filename.endswith(".py") and not filename == "logger.py" and not filename == "main.py":
+                await self.load_extension(f"{filename[:-3]}")
                 self.logger.info(f"Loaded {filename} successfully from the modules folder.")
         # Sync the commands to the Discord bot's tree.
         await bot.tree.sync()

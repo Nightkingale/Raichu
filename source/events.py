@@ -7,7 +7,7 @@ import re
 
 from bs4 import BeautifulSoup
 from discord.ext import commands
-from modules.logger import create_logger
+from logger import create_logger
 
 class Events(commands.Cog):
     def __init__(self, bot: commands.Bot):
