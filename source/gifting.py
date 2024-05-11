@@ -33,14 +33,15 @@ class Gifting(commands.Cog):
 
     @giveaway_group.command()
     @app_commands.choices(giveaway=[
-        app_commands.Choice(name="Music Supporter", value="Music Supporter")])
+        app_commands.Choice(name="Heavenly Night (Digital Download)", value="Heavenly Night (Digital Download)")])
     @app_commands.describe(giveaway="The name of the giveaway to claim.")
     async def claim(self, interaction: discord.Interaction, giveaway: str):
         "Claim any special gifts you might be eligible for."
-        if giveaway == "Music Supporter":
-            # If the user does not have the Music Supporter role, send an error message.
+        if giveaway == "Heavenly Night (Digital Download)":
+            # If the user does not have the eligible role, send an error message.
             if not discord.utils.get(interaction.user.roles, id=1192190765288411277):
-                await interaction.response.send_message("You do not have the Music Supporter role, so you are not eligible to claim this gift.",
+                role = discord.utils.get(interaction.guild.roles, id=1192190765288411277)
+                await interaction.response.send_message(f"You are not a {role.name}, so you are not eligible to claim this gift.",
                     ephemeral=True)
                 return
             hn_giveaway = database["Certificate"].find_one({"_id": "Heavenly Night"})
@@ -54,7 +55,7 @@ class Gifting(commands.Cog):
             hn_code = random.choice(hn_giveaway["codes"])
             ttt_code = random.choice(ttt_giveaway["codes"])
             # Make an embed for the gift codes.
-            embed = discord.Embed(title="Music Supporter Gift (Digital Downloads)",
+            embed = discord.Embed(title=giveaway,
                 description="Redeem: https://redeem.nightkingale.com/",
                 color=0xffff00)
             embed.set_thumbnail(url="https://f4.bcbits.com/img/0034764402_10.jpg")
@@ -65,13 +66,13 @@ class Gifting(commands.Cog):
                 ephemeral=True)
             # Attempt to send a message to the user. If it doesn't work, let the user know and stop.
             try:
-                await interaction.user.send("Thank you so much for supporting Nightkingale's music! Please see below for your gift.",
+                await interaction.user.send("Thank you so much for supporting Nightkingale! Please see below for your gift.",
                     embed=embed)
             except discord.Forbidden:
                 await interaction.followup.send("Your gift could not be sent to you! Please make sure you have direct messages enabled and try again.",
                     ephemeral=True)
                 return
-            self.logger.info(f"{interaction.user.name} has claimed their Music Supporter gift.")
+            self.logger.info(f"{interaction.user.name} has claimed their {giveaway} gift.")
             # Add the user to the giveaway.
             database["Certificate"].update_one({"_id": "Heavenly Night"}, {"$push": {"users": interaction.user.id}})
             database["Certificate"].update_one({"_id": "To the Throwbacks"}, {"$push": {"users": interaction.user.id}})
