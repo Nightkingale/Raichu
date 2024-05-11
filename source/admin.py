@@ -83,9 +83,6 @@ class Admin(commands.Cog):
     @app_commands.describe(
         name="The name of the giveaway to manage.",
         amount="The amount of winners to choose.")
-    @app_commands.choices(action=[
-        app_commands.Choice(name="Start", value="start"),
-        app_commands.Choice(name="End", value="end")])
     @app_commands.default_permissions(manage_messages=True)
     async def giveaway(self, interaction: discord.Interaction, name: str, amount: int = 0):
         "Starts a giveaway, or ends it if amount is specified."
