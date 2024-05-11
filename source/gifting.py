@@ -36,7 +36,7 @@ class Gifting(commands.Cog):
         app_commands.Choice(name="Heavenly Night (Digital Download)", value="Heavenly Night (Digital Download)")])
     @app_commands.describe(giveaway="The name of the giveaway to claim.")
     async def claim(self, interaction: discord.Interaction, giveaway: str):
-        "Claim any special gifts you might be eligible for."
+        "Claims any gifts that you might be eligible for."
         if giveaway == "Heavenly Night (Digital Download)":
             # If the user does not have the eligible role, send an error message.
             if not discord.utils.get(interaction.user.roles, id=1192190765288411277):
@@ -84,8 +84,8 @@ class Gifting(commands.Cog):
     @giveaway_group.command()
     @app_commands.describe(
         giveaway="The name of the giveaway to join or leave.")
-    async def enter(self, interaction: discord.Interaction, giveaway: str):
-        "Add or remove yourself from a giveaway."
+    async def toggle(self, interaction: discord.Interaction, giveaway: str):
+        "Adds or removes yourself from a giveaway."
         # Check if the giveaway exists and is not archived.
         giveaway_entry = database["Ongoing"].find_one({"_id": giveaway})
         if not giveaway_entry:

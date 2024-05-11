@@ -156,7 +156,7 @@ class Admin(commands.Cog):
     @sudo_group.command()
     @app_commands.default_permissions(manage_messages=True)
     async def reboot(self, interaction: discord.Interaction):
-        "Reboots the bot by terminating its process."
+        "Reboots the bot by terminating its process and prompting Heroku."
         await interaction.response.send_message("The bot process will now be terminated.",
             ephemeral=True)
         self.logger.info(f"{interaction.user.name} has requested a reboot of the bot.")
@@ -166,7 +166,7 @@ class Admin(commands.Cog):
     @sudo_group.command()
     @app_commands.default_permissions(manage_messages=True)
     async def status(self, interaction: discord.Interaction, text: str = None):
-        "Change the status to the specified text, or reset it back to default."
+        "Resets the status, or changes it if text is specified."
         if text is None:
             activity = discord.Activity(
                 name="Nincord", type=discord.ActivityType.watching)

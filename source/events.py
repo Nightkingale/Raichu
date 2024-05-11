@@ -9,6 +9,7 @@ from bs4 import BeautifulSoup
 from discord.ext import commands
 from logger import create_logger
 
+
 class Events(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
@@ -16,6 +17,7 @@ class Events(commands.Cog):
         self.last_videos = []
         self.last_releases = []
         self.logger = create_logger(self.__class__.__name__)
+
 
     def create_embed(self, type, title, url, author_name, author_url, author_art,
         art, duration, published, buy=None):
@@ -40,6 +42,7 @@ class Events(commands.Cog):
             embed.add_field(name="Published", value=published, inline=True)
             embed.set_footer(text="This was obtained through web scraping YouTube Music.")
         return embed
+
 
     # Separate function for checking new SoundCloud tracks.
     async def check_new_soundcloud_tracks(self, session, last_tracks):
@@ -85,6 +88,7 @@ class Events(commands.Cog):
                     channel = self.bot.get_channel(1127330813835485315)
                     await channel.send(embed=embed)
         return last_tracks
+
 
     # Separate function for checking new YouTube videos.
     async def check_new_youtube_videos(self, session, last_videos):
@@ -133,6 +137,7 @@ class Events(commands.Cog):
                     channel = self.bot.get_channel(1127330813835485315)
                     await channel.send(embed=embed)
         return last_videos
+
 
     # Separate function for checking new YouTube Music releases.
     async def check_new_youtube_music_releases(self, session, last_releases):
@@ -183,6 +188,7 @@ class Events(commands.Cog):
                     channel = self.bot.get_channel(1127330813835485315)
                     await channel.send(embed=embed)
             return last_releases
+
 
     # Main function for the on_ready event
     @commands.Cog.listener()

@@ -8,12 +8,14 @@ from json import loads
 from logger import create_logger
 from pathlib import Path
 
+
 try:
     # Attempt to load the secrets from a file.
     secrets = loads(Path("secrets.json").read_text())
 except FileNotFoundError:
     # This is used as a fallback when the secrets file doesn't exist.
     secrets = {"CHATGPT_API_KEY": os.environ["CHATGPT_API_KEY"]}
+
 
 class Discuss(commands.Cog):
     def __init__(self, bot: commands.Bot):
