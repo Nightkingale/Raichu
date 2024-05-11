@@ -79,9 +79,9 @@ class Events(commands.Cog):
                 self.logger.info("The last_tracks list is empty, so it will be filled.")
                 last_tracks = [track_info[1] for track_info in new_tracks]
                 return last_tracks
-            for track_info[1] in new_tracks:
+            for track_info in new_tracks:
                 # Compare to see if the exact data is already posted.
-                if track_info not in last_tracks:
+                if track_info[1] not in last_tracks:
                     self.logger.info(f"A new SoundCloud track was scraped called {track_info[0]}.")
                     last_tracks.append(track_info[1])
                     embed = self.create_embed("track", *track_info)
@@ -150,7 +150,7 @@ class Events(commands.Cog):
             json_text = re.search(r"ytInitialData\s*=\s*({.*?});", script.string).group(1)
             data = json.loads(json_text)
             # Grab the list of releases from scraped JSON data.
-            releases = data['contents']['twoColumnBrowseResultsRenderer']['tabs'][2]['tabRenderer'] \
+            releases = data['contents']['twoColumnBrowseResultsRenderer']['tabs'][3]['tabRenderer'] \
                 ['content']['richGridRenderer']['contents']
             # Scrape the author name and art from the page.
             author_name = soup.find("meta", {"property": "og:title"})["content"]
@@ -179,9 +179,9 @@ class Events(commands.Cog):
                 self.logger.info("The last_releases list is empty, so it will be filled.")
                 last_releases = [release_info[1] for release_info in new_releases]
                 return last_releases
-            for release_info[1] in new_releases:
+            for release_info in new_releases:
                 # Compare to see if the exact data already was posted.
-                if release_info not in last_releases:
+                if release_info[1] not in last_releases:
                     self.logger.info(f"A new YouTube Music release was scraped called {release_info[0]}")
                     last_releases.append(release_info[1])
                     embed = self.create_embed("release", *release_info)
@@ -203,7 +203,8 @@ class Events(commands.Cog):
                     self.last_releases = await self.check_new_youtube_music_releases(session, self.last_releases)
                 except Exception as error:
                     self.logger.error(f"An error occurred while scraping: {error}")
-            await asyncio.sleep(900)
+                self.last_releases = await self.check_new_youtube_music_releases(session, self.last_releases)
+            await asyncio.sleep(60)
 
 
 async def setup(bot: commands.Bot):
