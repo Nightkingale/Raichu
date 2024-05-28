@@ -1,12 +1,33 @@
 import aiohttp
 import asyncio
+import datetime
 import discord
 import os
+import random
 
 from discord.ext import commands
 from json import loads
 from logger import create_logger
 from pathlib import Path
+
+
+# This list contains topics that can be used to start a discussion.
+# This can be expanded to include more topics in the future.
+discussion_starters = [
+    # Topics related to Nintendo.
+    "Wii U hacking",
+    "Wii U games",
+    "Wii hacking",
+    "Wii games",
+    "Nintendo 3DS hacking",
+    "Nintendo 3DS games",
+    "Nintendo Switch hacking",
+    "Nintendo Switch games",
+    # Other server-related topics.
+    "Mountain Dew history",
+    "Mountain Dew flavors",
+    "Fortnite knowledge",
+]
 
 
 try:
@@ -107,6 +128,38 @@ class Discuss(commands.Cog):
                         f"{len(request) + len(prompt)} tokens.")
                     response = await self.send_to_gpt(conversation)
                     await message.reply(response, allowed_mentions=discord.AllowedMentions.none())
+
+
+    # This is an experimental feature that will be used to keep discussion alive.
+    # Every three hours, if the last message in the channel is old, a prompt will be sent.
+    # Currently, it is either a fact or a question about a conversation starter.
+    @commands.Cog.listener()
+    async def on_ready(self):
+        await self.bot.wait_until_ready()
+        # The prompt for stating a fact about a discussion starter.
+        fact_prompt = (
+            f"Please state an interesting fact about {random.choice(discussion_starters)}. "
+            f"If you state a fact, you can start with 'Did you know that...?' "
+            f"Please make sure you give decent information. Two sentences is great, "
+            f"three sentences at most."
+        )
+        # The prompt for asking a question about a discussion starter.
+        question_prompt = (
+            f"Please ask a question about {random.choice(discussion_starters)}. "
+            f"This question can be specific or general, but it should be engaging."
+            f"Some ideas include asking about favorites, or asking for recommendations."
+            f"Please refrain from asking yes or no questions, though."
+        )
+        # Keep the loop running until the bot is closed.
+        while not self.bot.is_closed():           
+            duration = datetime.timedelta(hours=3)
+            channel = self.bot.get_channel(1127657272315740260) # The general chat channel.
+            last_message = [message async for message in channel.history(limit=1)][0]
+            if last_message and last_message.created_at < discord.utils.utcnow() - duration:
+                prompt = random.choice([fact_prompt, question_prompt])
+                response = await self.send_to_gpt([{"role": "system", "content": prompt}])
+                await channel.send(response)
+            await asyncio.sleep(10800)
 
 
 async def setup(bot: commands.Bot):
