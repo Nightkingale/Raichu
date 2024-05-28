@@ -19,7 +19,7 @@ except FileNotFoundError:
 
 
 client = pymongo.MongoClient(secrets["MONGODB_URI_KEY"])
-database = client["Giveaways"]
+database = client["Gifting"]
 
 
 class Admin(commands.Cog):

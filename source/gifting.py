@@ -1,7 +1,6 @@
 import discord
 import os
 import pymongo
-import random
 
 from discord import app_commands
 from discord.ext import commands
@@ -19,7 +18,7 @@ except FileNotFoundError:
 
 
 client = pymongo.MongoClient(secrets["MONGODB_URI_KEY"])
-database = client["Giveaways"]
+database = client["Gifting"]
 
 
 class Gifting(commands.Cog):
