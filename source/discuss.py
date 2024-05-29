@@ -152,14 +152,11 @@ class Discuss(commands.Cog):
         )
         # Keep the loop running until the bot is closed.
         while not self.bot.is_closed():           
-            duration = datetime.timedelta(hours=3)
             channel = self.bot.get_channel(1127657272315740260) # The general chat channel.
-            last_message = [message async for message in channel.history(limit=1)][0]
-            if last_message and last_message.created_at < discord.utils.utcnow() - duration:
-                prompt = random.choice([fact_prompt, question_prompt])
-                response = await self.send_to_gpt([{"role": "system", "content": prompt}])
-                await channel.send(response)
-            await asyncio.sleep(10800)
+            prompt = random.choice([fact_prompt, question_prompt])
+            response = await self.send_to_gpt([{"role": "system", "content": prompt}])
+            await channel.send(response)
+            await asyncio.sleep(21600)
 
 
 async def setup(bot: commands.Bot):
