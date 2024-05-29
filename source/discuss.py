@@ -13,7 +13,7 @@ from logger import create_logger
 from pathlib import Path
 
 
-with open('config.json') as f:
+with open("config.json") as f:
     config = json.load(f)
 
 
@@ -75,8 +75,8 @@ class Discuss(commands.Cog):
     @commands.Cog.listener()
     async def on_ready(self):
         await self.bot.wait_until_ready()
-        discussion_starters = config['discussion_starters']
-        channel = self.bot.get_channel(config["#chat-hangout"])
+        discussion_starters = config["discuss"]["discussion_starters"]
+        channel = self.bot.get_channel(config["channels"]["#chat-hangout"])
         # Keep the loop running until the bot is closed.
         while not self.bot.is_closed():
             now = datetime.datetime.now(pytz.timezone('UTC'))
@@ -125,7 +125,7 @@ class Discuss(commands.Cog):
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
         if self.bot.user.mentioned_in(message) and message.author != self.bot.user and not message.mention_everyone \
-            and message.channel == self.bot.get_channel(config["#bot-discussion"]):
+            and message.channel == self.bot.get_channel(config["channels"]["#bot-discussion"]):
             # Get the names of the bot, user, and server.
             bot_name = discord.utils.get(message.guild.members, id=self.bot.user.id).display_name
             user_name = message.author.display_name

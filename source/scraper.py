@@ -10,7 +10,7 @@ from discord.ext import commands
 from logger import create_logger
 
 
-with open('config.json') as f:
+with open("config.json") as f:
     config = json.load(f)
 
 
@@ -50,7 +50,7 @@ class Scraper(commands.Cog):
 
     # Separate function for checking new SoundCloud tracks.
     async def check_new_soundcloud_tracks(self, session, last_tracks):
-        author_url = config["soundcloud_link"]
+        author_url = config["scraper"]["soundcloud_link"]
         async with session.get(author_url + "/tracks") as response:
             html = await response.text()
             soup = BeautifulSoup(html, "html.parser")
@@ -88,14 +88,14 @@ class Scraper(commands.Cog):
                     self.logger.info(f"A new SoundCloud track was scraped called {track_info[0]}.")
                     last_tracks.append(track_info[1])
                     embed = self.create_embed("track", *track_info)
-                    channel = self.bot.get_channel(config["#repository-log"])
+                    channel = self.bot.get_channel(config["channels"]["#repository-log"])
                     await channel.send(embed=embed)
         return last_tracks
 
 
     # Separate function for checking new YouTube videos.
     async def check_new_youtube_videos(self, session, last_videos):
-        author_url = config["youtube_link"]
+        author_url = config["scraper"]["youtube_link"]
         async with session.get(author_url + "/videos") as response:
             html = await response.text()
             soup = BeautifulSoup(html, "html.parser")
@@ -136,14 +136,14 @@ class Scraper(commands.Cog):
                     self.logger.info(f"A new YouTube video was scraped called {video_info[0]}.")
                     last_videos.append(video_info[1])
                     embed = self.create_embed("video", *video_info)
-                    channel = self.bot.get_channel(config["#repository-log"])
+                    channel = self.bot.get_channel(config["channels"]["#repository-log"])
                     await channel.send(embed=embed)
         return last_videos
 
 
     # Separate function for checking new YouTube Music releases.
     async def check_new_youtube_music_releases(self, session, last_releases):
-        author_url = config["youtube_link"]
+        author_url = config["scraper"]["youtube_link"]
         async with session.get(author_url + "/releases") as response:
             html = await response.text()
             soup = BeautifulSoup(html, "html.parser")
@@ -186,7 +186,7 @@ class Scraper(commands.Cog):
                     self.logger.info(f"A new YouTube Music release was scraped called {release_info[0]}")
                     last_releases.append(release_info[1])
                     embed = self.create_embed("release", *release_info)
-                    channel = self.bot.get_channel(config["#repository-log"])
+                    channel = self.bot.get_channel(config["channels"]["#repository-log"])
                     await channel.send(embed=embed)
             return last_releases
 

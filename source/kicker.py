@@ -12,6 +12,7 @@ class Kicker(commands.Cog):
         self.bot = bot
         self.logger = create_logger(self.__class__.__name__)
 
+
     # This doesn't actually kick anybody, but it keeps me from sitting idle in the voice channel.
     # I like to watch Discord streams at night as I am heading to bed. lol
     @commands.Cog.listener()
