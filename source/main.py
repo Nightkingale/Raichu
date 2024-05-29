@@ -13,9 +13,10 @@ class Manager(commands.Bot):
             command_prefix="/",
             help_command=None,
             intents=discord.Intents.all(),
-            application=983846918683770941
+            application=983846918683770941,
+            activity=discord.Activity(name="Nincord", type=discord.ActivityType.watching),
+            status=discord.Status.online
         )
-
         self.logger = create_logger("Main")
 
 
@@ -28,13 +29,6 @@ class Manager(commands.Bot):
         # Sync the commands to the Discord bot's tree.
         await bot.tree.sync()
         await bot.tree.sync(guild=discord.Object(id=450846070025748480))
-
-
-    async def on_ready(self):
-        # Set the bot's activity.
-        activity = discord.Activity(
-            name="Nincord", type=discord.ActivityType.watching)
-        await bot.change_presence(activity=activity)
 
 
 try:
