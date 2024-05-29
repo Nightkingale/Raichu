@@ -155,16 +155,6 @@ class Admin(commands.Cog):
 
     @sudo_group.command()
     @app_commands.default_permissions(manage_messages=True)
-    async def reboot(self, interaction: discord.Interaction):
-        "Reboots the bot by terminating its process and prompting Heroku."
-        await interaction.response.send_message("The bot process will now be terminated.",
-            ephemeral=True)
-        self.logger.info(f"{interaction.user.name} has requested a reboot of the bot.")
-        await self.bot.close()
-
-
-    @sudo_group.command()
-    @app_commands.default_permissions(manage_messages=True)
     async def status(self, interaction: discord.Interaction, text: str = None):
         "Resets the status, or changes it if text is specified."
         if text is None:
@@ -178,6 +168,16 @@ class Admin(commands.Cog):
             await interaction.response.send_message("The status has been changed successfully.",
                 ephemeral=True)
         self.logger.info(f"{interaction.user.name} has changed the bot's status.")
+
+
+    @commands.command(hidden=True)
+    @commands.is_owner()
+    async def reboot(self, interaction: discord.Interaction):
+        "Reboots the bot by terminating its process and prompting Heroku."
+        await interaction.response.send_message("The bot process will now be terminated.",
+            ephemeral=True)
+        self.logger.info(f"{interaction.user.name} has requested a reboot of the bot.")
+        await self.bot.close()
 
 
     @commands.command(hidden=True)
