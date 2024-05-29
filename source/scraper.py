@@ -14,7 +14,7 @@ with open('config.json') as f:
     config = json.load(f)
 
 
-class Events(commands.Cog):
+class Scraper(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.last_tracks = []
@@ -50,7 +50,7 @@ class Events(commands.Cog):
 
     # Separate function for checking new SoundCloud tracks.
     async def check_new_soundcloud_tracks(self, session, last_tracks):
-        author_url = "https://soundcloud.com/nightkingale"
+        author_url = config["soundcloud_link"]
         async with session.get(author_url + "/tracks") as response:
             html = await response.text()
             soup = BeautifulSoup(html, "html.parser")
@@ -80,7 +80,6 @@ class Events(commands.Cog):
                 new_tracks.append(track_info)
             # Check if the held data is empty.
             if not last_tracks:
-                self.logger.info("The last_tracks list is empty, so it will be filled.")
                 last_tracks = [track_info[1] for track_info in new_tracks]
                 return last_tracks
             for track_info in new_tracks:
@@ -96,7 +95,7 @@ class Events(commands.Cog):
 
     # Separate function for checking new YouTube videos.
     async def check_new_youtube_videos(self, session, last_videos):
-        author_url = "https://www.youtube.com/@Nightkingale"
+        author_url = config["youtube_link"]
         async with session.get(author_url + "/videos") as response:
             html = await response.text()
             soup = BeautifulSoup(html, "html.parser")
@@ -130,7 +129,6 @@ class Events(commands.Cog):
                 new_videos.append(video_info)
             # Check if the held data is empty.
             if not last_videos:
-                self.logger.info("The last_videos list is empty, so it will be filled.")
                 last_videos = [video_info[1] for video_info in new_videos]
                 return last_videos
             for video_info in new_videos:
@@ -145,7 +143,7 @@ class Events(commands.Cog):
 
     # Separate function for checking new YouTube Music releases.
     async def check_new_youtube_music_releases(self, session, last_releases):
-        author_url = "https://www.youtube.com/@Nightkingale"
+        author_url = config["youtube_link"]
         async with session.get(author_url + "/releases") as response:
             html = await response.text()
             soup = BeautifulSoup(html, "html.parser")
@@ -180,7 +178,6 @@ class Events(commands.Cog):
                 new_releases.append(release_info)
             # Check if the held data is empty.
             if not last_releases:
-                self.logger.info("The last_releases list is empty, so it will be filled.")
                 last_releases = [release_info[1] for release_info in new_releases]
                 return last_releases
             for release_info in new_releases:
@@ -201,7 +198,7 @@ class Events(commands.Cog):
         while not self.bot.is_closed():
             async with aiohttp.ClientSession() as session:
                 try:
-                    self.logger.info("Checking for new tracks, videos, and releases.")
+                    self.logger.info("A web scraping session has started.")
                     self.last_tracks = await self.check_new_soundcloud_tracks(session, self.last_tracks)
                     self.last_videos = await self.check_new_youtube_videos(session, self.last_videos)
                     self.last_releases = await self.check_new_youtube_music_releases(session, self.last_releases)
@@ -211,4 +208,4 @@ class Events(commands.Cog):
 
 
 async def setup(bot: commands.Bot):
-    await bot.add_cog(Events(bot), guilds=[discord.Object(id=450846070025748480)])
+    await bot.add_cog(Scraper(bot), guilds=[discord.Object(id=450846070025748480)])
