@@ -83,6 +83,49 @@ class Discuss(commands.Cog):
                         response.raise_for_status()
 
 
+    # Every six hours, a prompt will be sent to the main discussion channel.
+    # Currently, it is either a fact or a question about a conversation starter.
+    @commands.Cog.listener()
+    async def on_ready(self):
+        await self.bot.wait_until_ready()
+        channel = self.bot.get_channel(1127657272315740260) # The general chat channel.
+        # Keep the loop running until the bot is closed.
+        while not self.bot.is_closed():
+            # The prompt for stating a fact about a discussion starter.
+            fact_prompt = (
+                f"Please state an interesting fact about {random.choice(discussion_starters)}. "
+                f"If you state a fact, you can start with 'Did you know that...?' "
+                f"Please make sure you give decent information. Two sentences is great."
+                f"Just state the fact by itself, nothing such as 'Sure!'"
+            )
+            # The prompt for asking a question about a discussion starter.
+            question_prompt = (
+                f"Please ask a question about {random.choice(discussion_starters)}. "
+                f"This question can be specific or general, but it should be engaging. "
+                f"Some ideas include asking about favorites, or asking for recommendations. "
+                f"Please refrain from asking yes or no questions, though. "
+                f"Just state the question by itself, nothing such as 'Sure!'"
+            )
+            prompt = question_prompt
+            # If the channel isn't in the conversations dictionary, add it.
+            if channel.id not in self.conversations:
+                self.conversations[channel.id] = []
+            conversation = self.conversations[channel.id]
+            # Add the prompt to the conversation.
+            conversation.append({
+                "role": "system",
+                "content": prompt
+            })
+            async with channel.typing():
+                # Log the estimation of tokens that will be used.
+                self.logger.info("Sending request to GPT-4 estimated to use "
+                    f"{len(prompt)} tokens.")
+                response = await self.send_to_gpt(conversation)
+                await channel.send(response)
+            await asyncio.sleep(21600)
+
+
+    # If the bot is mentioned, it will respond to the message with a GPT-4 response.
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
         if self.bot.user.mentioned_in(message) and message.author != self.bot.user and not message.mention_everyone:
@@ -128,35 +171,6 @@ class Discuss(commands.Cog):
                         f"{len(request) + len(prompt)} tokens.")
                     response = await self.send_to_gpt(conversation)
                     await message.reply(response, allowed_mentions=discord.AllowedMentions.none())
-
-
-    # This is an experimental feature that will be used to keep discussion alive.
-    # Every three hours, if the last message in the channel is old, a prompt will be sent.
-    # Currently, it is either a fact or a question about a conversation starter.
-    @commands.Cog.listener()
-    async def on_ready(self):
-        await self.bot.wait_until_ready()
-        # The prompt for stating a fact about a discussion starter.
-        fact_prompt = (
-            f"Please state an interesting fact about {random.choice(discussion_starters)}. "
-            f"If you state a fact, you can start with 'Did you know that...?' "
-            f"Please make sure you give decent information. Two sentences is great, "
-            f"three sentences at most."
-        )
-        # The prompt for asking a question about a discussion starter.
-        question_prompt = (
-            f"Please ask a question about {random.choice(discussion_starters)}. "
-            f"This question can be specific or general, but it should be engaging."
-            f"Some ideas include asking about favorites, or asking for recommendations."
-            f"Please refrain from asking yes or no questions, though."
-        )
-        # Keep the loop running until the bot is closed.
-        while not self.bot.is_closed():           
-            channel = self.bot.get_channel(1127657272315740260) # The general chat channel.
-            prompt = random.choice([fact_prompt, question_prompt])
-            response = await self.send_to_gpt([{"role": "system", "content": prompt}])
-            await channel.send(response)
-            await asyncio.sleep(21600)
 
 
 async def setup(bot: commands.Bot):
