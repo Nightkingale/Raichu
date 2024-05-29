@@ -172,11 +172,10 @@ class Admin(commands.Cog):
 
     @commands.command(hidden=True)
     @commands.is_owner()
-    async def reboot(self, interaction: discord.Interaction):
+    async def reboot(self, ctx):
         "Reboots the bot by terminating its process and prompting Heroku."
-        await interaction.response.send_message("The bot process will now be terminated.",
-            ephemeral=True)
-        self.logger.info(f"{interaction.user.name} has requested a reboot of the bot.")
+        await ctx.send("The bot process will now be terminated.")
+        self.logger.info(f"{ctx.author.name} has requested a reboot of the bot.")
         await self.bot.close()
 
 
