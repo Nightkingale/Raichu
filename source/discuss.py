@@ -1,7 +1,7 @@
 import aiohttp
 import asyncio
-import datetime
 import discord
+import json
 import os
 import random
 
@@ -11,23 +11,8 @@ from logger import create_logger
 from pathlib import Path
 
 
-# This list contains topics that can be used to start a discussion.
-# This can be expanded to include more topics in the future.
-discussion_starters = [
-    # Topics related to Nintendo.
-    "Wii U hacking",
-    "Wii U games",
-    "Wii hacking",
-    "Wii games",
-    "Nintendo 3DS hacking",
-    "Nintendo 3DS games",
-    "Nintendo Switch hacking",
-    "Nintendo Switch games",
-    # Other server-related topics.
-    "Mountain Dew history",
-    "Mountain Dew flavors",
-    "Fortnite knowledge",
-]
+with open('config.json') as f:
+    config = json.load(f)
 
 
 try:
@@ -88,7 +73,8 @@ class Discuss(commands.Cog):
     @commands.Cog.listener()
     async def on_ready(self):
         await self.bot.wait_until_ready()
-        channel = self.bot.get_channel(1127657272315740260) # The general chat channel.
+        discussion_starters = config['discussion_starters']
+        channel = self.bot.get_channel(config["#chat-hangout"])
         # Keep the loop running until the bot is closed.
         while not self.bot.is_closed():
             # The prompt for stating a fact about a discussion starter.
