@@ -56,7 +56,7 @@ class Discuss(commands.Cog):
         }
         data = {
             "messages": conversation,
-            "model": "gpt-3.5-turbo",
+            "model": "gpt-4o",
         }
         # Retry the request up to 3 times if it fails.
         retry_count = 0
@@ -124,7 +124,7 @@ class Discuss(commands.Cog):
             if request != "":
                 async with message.channel.typing():
                     # Log the estimation of tokens that will be used
-                    self.logger.info("Sending request to GPT-3 estimated to use "
+                    self.logger.info("Sending request to GPT-4 estimated to use "
                         f"{len(request) + len(prompt)} tokens.")
                     response = await self.send_to_gpt(conversation)
                     await message.reply(response, allowed_mentions=discord.AllowedMentions.none())
