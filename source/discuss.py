@@ -4,13 +4,19 @@ import datetime
 import discord
 import json
 import os
-import pytz
 import random
 
-from discord.ext import commands
+from discord.ext import commands, tasks
 from json import loads
 from logger import create_logger
 from pathlib import Path
+
+
+utc = datetime.timezone.utc
+prompt_times = [
+    datetime.time(hour=0, tzinfo=utc),
+    datetime.time(hour=12, tzinfo=utc)
+]
 
 
 with open("config.json") as f:
@@ -28,8 +34,10 @@ except FileNotFoundError:
 class Discuss(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-        self.conversations = {}
         self.logger = create_logger(self.__class__.__name__)
+        self.conversations = {}
+        self.discussion_starter.start()
+
         
     # Thank you, vgmoose, for the following code snippet!
     # this function sends the text verabtim to the openai endpoint
@@ -72,53 +80,42 @@ class Discuss(commands.Cog):
 
     # Every twelve hours, a prompt will be sent to the main discussion channel.
     # Currently, it is either a fact or a question about a conversation starter.
-    @commands.Cog.listener()
-    async def on_ready(self):
+    @tasks.loop(time=prompt_times)
+    async def discussion_starter(self):
         await self.bot.wait_until_ready()
         discussion_starters = config["discuss"]["discussion_starters"]
         channel = self.bot.get_channel(config["channels"]["#chat-hangout"])
-        # Keep the loop running until the bot is closed.
-        while not self.bot.is_closed():
-            now = datetime.datetime.now(pytz.timezone('UTC'))
-            if now.hour < 12:
-                next_time = now.replace(hour=12, minute=0, second=0, microsecond=0)
-            else:
-                next_time = now.replace(hour=0, minute=0, second=0, microsecond=0) + datetime.timedelta(days=1)
-            seconds_until_next_time = (next_time - now).total_seconds()
-            self.logger.info(f"The next discussion starter will be sent at {next_time}.")
-            await asyncio.sleep(seconds_until_next_time)
-            # The prompt for stating a fact about a discussion starter.
-            fact_prompt = (
-                f"Please state an interesting fact about {random.choice(discussion_starters)}. "
-                f"If you state a fact, you can start with 'Did you know that...?' "
-                f"Please make sure you give decent information. Two sentences is great."
-                f"Just state the fact by itself, nothing such as 'Sure!'"
-            )
-            # The prompt for asking a question about a discussion starter.
-            question_prompt = (
-                f"Please ask a question about {random.choice(discussion_starters)}. "
-                f"This question can be specific or general, but it should be engaging. "
-                f"Some ideas include asking about favorites, or asking for recommendations. "
-                f"Please refrain from asking yes or no questions, though. "
-                f"Just state the question by itself, nothing such as 'Sure!'"
-            )
-            prompt = random.choice([fact_prompt, question_prompt])
-            # If the channel isn't in the conversations dictionary, add it.
-            if channel.id not in self.conversations:
-                self.conversations[channel.id] = []
-            conversation = self.conversations[channel.id]
-            # Add the prompt to the conversation.
-            conversation.append({
-                "role": "system",
-                "content": prompt
-            })
-            async with channel.typing():
-                # Log the estimation of tokens that will be used.
-                self.logger.info("Sending request to GPT-4 estimated to use "
-                    f"{len(prompt)} tokens.")
-                response = await self.send_to_gpt(conversation)
-                await channel.send(response)
-            await asyncio.sleep(60)
+        # The prompt for stating a fact about a discussion starter.
+        fact_prompt = (
+            f"Please state an interesting fact about {random.choice(discussion_starters)}. "
+            f"If you state a fact, you can start with 'Did you know that...?' "
+            f"Please make sure you give decent information. Two sentences is great."
+            f"Just state the fact by itself, nothing such as 'Sure!'"
+        )
+        # The prompt for asking a question about a discussion starter.
+        question_prompt = (
+            f"Please ask a question about {random.choice(discussion_starters)}. "
+            f"This question can be specific or general, but it should be engaging. "
+            f"Some ideas include asking about favorites, or asking for recommendations. "
+            f"Please refrain from asking yes or no questions, though. "
+            f"Just state the question by itself, nothing such as 'Sure!'"
+        )
+        prompt = random.choice([fact_prompt, question_prompt])
+        # If the channel isn't in the conversations dictionary, add it.
+        if channel.id not in self.conversations:
+            self.conversations[channel.id] = []
+        conversation = self.conversations[channel.id]
+        # Add the prompt to the conversation.
+        conversation.append({
+            "role": "system",
+            "content": prompt
+        })
+        async with channel.typing():
+            # Log the estimation of tokens that will be used.
+            self.logger.info("Sending request to GPT-4 estimated to use "
+                f"{len(prompt)} tokens.")
+            response = await self.send_to_gpt(conversation)
+            await channel.send(response)
 
 
     # If the bot is mentioned, it will respond to the message with a GPT-4 response.

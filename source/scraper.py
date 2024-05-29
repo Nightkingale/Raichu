@@ -6,7 +6,7 @@ import json
 import re
 
 from bs4 import BeautifulSoup
-from discord.ext import commands
+from discord.ext import commands, tasks
 from logger import create_logger
 
 
@@ -17,10 +17,9 @@ with open("config.json") as f:
 class Scraper(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-        self.last_tracks = []
-        self.last_videos = []
-        self.last_releases = []
         self.logger = create_logger(self.__class__.__name__)
+        self.last_tracks, self.last_videos, self.last_releases = [], [], []
+        self.scraper.start()
 
 
     def create_embed(self, type, title, url, author_name, author_url, author_art,
@@ -192,19 +191,16 @@ class Scraper(commands.Cog):
 
 
     # Main function for the on_ready event
-    @commands.Cog.listener()
-    async def on_ready(self):
-        await self.bot.wait_until_ready()
-        while not self.bot.is_closed():
-            async with aiohttp.ClientSession() as session:
-                try:
-                    self.logger.info("A web scraping session has started.")
-                    self.last_tracks = await self.check_new_soundcloud_tracks(session, self.last_tracks)
-                    self.last_videos = await self.check_new_youtube_videos(session, self.last_videos)
-                    self.last_releases = await self.check_new_youtube_music_releases(session, self.last_releases)
-                except Exception as error:
-                    self.logger.error(f"An error occurred while scraping: {error}")
-            await asyncio.sleep(900)
+    @tasks.loop(minutes=15)
+    async def scraper(self):
+        async with aiohttp.ClientSession() as session:
+            try:
+                self.logger.info("A web scraping session has started.")
+                self.last_tracks = await self.check_new_soundcloud_tracks(session, self.last_tracks)
+                self.last_videos = await self.check_new_youtube_videos(session, self.last_videos)
+                self.last_releases = await self.check_new_youtube_music_releases(session, self.last_releases)
+            except Exception as error:
+                self.logger.error(f"An error occurred while scraping: {error}")
 
 
 async def setup(bot: commands.Bot):

@@ -1,37 +1,33 @@
-import asyncio
 import datetime
 import discord
-import pytz
 
-from discord.ext import commands
+from discord.ext import commands, tasks
+from zoneinfo import ZoneInfo
 from logger import create_logger
+
+
+mt = ZoneInfo("US/Mountain")
+time = datetime.time(hour=0, tzinfo=mt)
 
 
 class Kicker(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.logger = create_logger(self.__class__.__name__)
+        self.kicker.start()
 
 
-    # This doesn't actually kick anybody, but it keeps me from sitting idle in the voice channel.
+    # This doesn't actually kick anybody, but it keeps me from sitting idle.
     # I like to watch Discord streams at night as I am heading to bed. lol
-    @commands.Cog.listener()
-    async def on_ready(self):
-        async def check_voice_channels():
-            for guild in self.bot.guilds:
-                self.logger.info(f"The sleeping owner check has started.")
-                for channel in guild.voice_channels:
-                    if len(channel.members) == 1 and guild.owner in channel.members:
-                        await channel.members[0].move_to(None)
-                        self.logger.info(f"{guild.owner.name} has been kicked from {channel.name}.")
-
-        while not self.bot.is_closed():
-            now = datetime.datetime.now(pytz.timezone('UTC'))
-            midnight = now.replace(hour=0, minute=0, second=0, microsecond=0) + datetime.timedelta(days=1)
-            seconds_until_midnight = (midnight - now).total_seconds()
-            self.logger.info(f"The sleeping owner check will commence at {midnight}.")
-            await asyncio.sleep(seconds_until_midnight)
-            await check_voice_channels()
+    @tasks.loop(time=time)
+    async def kicker(self):
+        self.logger.info("The sleeping owner check has started.")
+        for guild in self.bot.guilds:
+            for channel in guild.voice_channels:
+                if len(channel.members) == 1 and guild.owner in channel.members:
+                    # Owner probably fell asleep in voice channel again.
+                    await channel.members[0].move_to(None)
+                    self.logger.info(f"{guild.owner.name} has been kicked from {channel.name}.")
 
 
 async def setup(bot: commands.Bot):
