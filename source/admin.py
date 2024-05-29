@@ -183,8 +183,8 @@ class Admin(commands.Cog):
     @commands.is_owner()
     async def sync(self, ctx):
         "Syncs the bot's commands with Discord."
-        self.logger.info(f"{ctx.author.name} has requested a command sync.")
         await self.bot.tree.sync()
+        self.logger.info(f"{ctx.author.name} has requested a command sync.")
         await ctx.send("The sync has been completed successfully.")
 
 
