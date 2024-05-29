@@ -180,5 +180,14 @@ class Admin(commands.Cog):
         self.logger.info(f"{interaction.user.name} has changed the bot's status.")
 
 
+    @commands.command(hidden=True)
+    @commands.is_owner()
+    async def sync(self, ctx):
+        "Syncs the bot's commands with Discord."
+        self.logger.info(f"{ctx.author.name} has requested a command sync.")
+        await self.bot.tree.sync()
+        await ctx.send("The sync has been completed successfully.")
+
+
 async def setup(bot: commands.Bot):
-    await bot.add_cog(Admin(bot), guilds=[discord.Object(id=450846070025748480)])
+    await bot.add_cog(Admin(bot))

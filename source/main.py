@@ -10,7 +10,7 @@ from pathlib import Path
 class Manager(commands.Bot):
     def __init__(self):
         super().__init__(
-            command_prefix="/",
+            command_prefix="r!",
             help_command=None,
             intents=discord.Intents.all(),
             application=983846918683770941,
@@ -23,12 +23,9 @@ class Manager(commands.Bot):
     async def setup_hook(self):
         for filename in os.listdir("./source"):
             # Load all of the modules in the modules folder.
-            if filename.endswith(".py") and not filename == "logger.py" and not filename == "main.py":
+            if filename.endswith(".py") and filename not in ["main.py", "logger.py"]:
                 await self.load_extension(f"{filename[:-3]}")
                 self.logger.info(f"Loaded {filename} successfully from the modules folder.")
-        # Sync the commands to the Discord bot's tree.
-        await bot.tree.sync()
-        await bot.tree.sync(guild=discord.Object(id=450846070025748480))
 
 
 try:

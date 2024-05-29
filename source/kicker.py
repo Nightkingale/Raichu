@@ -31,4 +31,4 @@ class Kicker(commands.Cog):
 
 
 async def setup(bot: commands.Bot):
-    await bot.add_cog(Kicker(bot), guilds=[discord.Object(id=450846070025748480)])
+    await bot.add_cog(Kicker(bot))
