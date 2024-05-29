@@ -1,8 +1,10 @@
 import aiohttp
 import asyncio
+import datetime
 import discord
 import json
 import os
+import pytz
 import random
 
 from discord.ext import commands
@@ -68,7 +70,7 @@ class Discuss(commands.Cog):
                         response.raise_for_status()
 
 
-    # Every six hours, a prompt will be sent to the main discussion channel.
+    # Every twelve hours, a prompt will be sent to the main discussion channel.
     # Currently, it is either a fact or a question about a conversation starter.
     @commands.Cog.listener()
     async def on_ready(self):
@@ -77,6 +79,14 @@ class Discuss(commands.Cog):
         channel = self.bot.get_channel(config["#chat-hangout"])
         # Keep the loop running until the bot is closed.
         while not self.bot.is_closed():
+            now = datetime.datetime.now(pytz.timezone('UTC'))
+            if now.hour < 12:
+                next_time = now.replace(hour=12, minute=0, second=0, microsecond=0)
+            else:
+                next_time = now.replace(hour=0, minute=0, second=0, microsecond=0) + datetime.timedelta(days=1)
+            seconds_until_next_time = (next_time - now).total_seconds()
+            self.logger.info(f"The next discussion starter will be sent at {next_time}.")
+            await asyncio.sleep(seconds_until_next_time)
             # The prompt for stating a fact about a discussion starter.
             fact_prompt = (
                 f"Please state an interesting fact about {random.choice(discussion_starters)}. "
@@ -108,7 +118,7 @@ class Discuss(commands.Cog):
                     f"{len(prompt)} tokens.")
                 response = await self.send_to_gpt(conversation)
                 await channel.send(response)
-            await asyncio.sleep(21600)
+            await asyncio.sleep(60)
 
 
     # If the bot is mentioned, it will respond to the message with a GPT-4 response.
