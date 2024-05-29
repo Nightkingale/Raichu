@@ -106,7 +106,7 @@ class Discuss(commands.Cog):
                 f"Please refrain from asking yes or no questions, though. "
                 f"Just state the question by itself, nothing such as 'Sure!'"
             )
-            prompt = question_prompt
+            prompt = random.choice([fact_prompt, question_prompt])
             # If the channel isn't in the conversations dictionary, add it.
             if channel.id not in self.conversations:
                 self.conversations[channel.id] = []
