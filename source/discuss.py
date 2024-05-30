@@ -97,6 +97,7 @@ class Discuss(commands.Cog):
             f"Please ask a question about {random.choice(discussion_starters)}. "
             f"This question can be specific or general, but it should be engaging. "
             f"Some ideas include asking about favorites, or asking for recommendations. "
+            f"Also, prefer open-ended questions, like opinions, over factual questions. "
             f"Please refrain from asking yes or no questions, though. "
             f"Just state the question by itself, nothing such as 'Sure!'"
         )
