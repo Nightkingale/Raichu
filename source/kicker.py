@@ -24,13 +24,15 @@ class Kicker(commands.Cog):
         self.logger.info("The sleeping owner check has started.")
         for guild in self.bot.guilds:
             for channel in guild.voice_channels:
-                if len(channel.members) == 1 and self.bot.owner_id == channel.members[0].id:
-                    # Owner probably fell asleep in voice channel again.
-                    await channel.members[0].move_to(None)
-                    self.logger.info(f"{guild.owner.name} has been kicked from {channel.name}.")
-                elif len(channel.members) > 1 and self.bot.owner_id == channel.members[0].id:
-                    return # Owner is not alone in voice channel. End the task.
-
+                # Store the owner of the voice channel if they are in the channel.
+                owner = next((member for member in channel.members if member.id == self.bot.owner_id), None)
+                if owner and len(channel.members) == 1:
+                    # Bot owner probably fell asleep in voice channel again.
+                    await owner.move_to(None)
+                    self.logger.info(f"{owner.name} has been kicked from {channel.name}.")
+                elif owner:
+                    return # Bot owner is not alone in voice channel. End the task.
+                
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(Kicker(bot))
