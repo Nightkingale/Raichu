@@ -10,8 +10,8 @@ from discord.ext import commands, tasks
 from logger import create_logger
 
 
-with open("config.json") as f:
-    config = json.load(f)
+with open("config.json") as file:
+    config = json.load(file)
 
 
 class Scraper(commands.Cog):

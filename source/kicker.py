@@ -25,7 +25,9 @@ class Kicker(commands.Cog):
         for guild in self.bot.guilds:
             for channel in guild.voice_channels:
                 # Store the owner of the voice channel if they are in the channel.
-                owner = next((member for member in channel.members if member.id == self.bot.owner_id), None)
+                owner_id = (await self.bot.application_info()).owner.id
+                owner = next((member for member in channel.members if member.id == \
+                    owner_id), None)
                 if owner and len(channel.members) == 1:
                     # Bot owner probably fell asleep in voice channel again.
                     await owner.move_to(None)

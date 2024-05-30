@@ -19,8 +19,8 @@ prompt_times = [
 ]
 
 
-with open("config.json") as f:
-    config = json.load(f)
+with open("config.json") as file:
+    config = json.load(file)
 
 
 try:
