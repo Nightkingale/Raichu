@@ -1,7 +1,7 @@
 # Raichu
-A utility Discord bot for the Nincord server.
+A utility Discord bot for the Nightkingale Studios server.
 
-Raichu is a simple bot that is currently being developed and expanded on. It utilizes Discord's new feature, slash commands, opposed to more traditional commands. Raichu is not made with any other server in mind besides Nincord, so in order for it to work otherwise, it might be necessary to make a number of changes to the code.
+Raichu is a simple bot that is currently being developed and expanded on. It utilizes Discord's new feature, slash commands, opposed to more traditional commands. Raichu is not made with any other server in mind besides Nightkingale Studios, so in order for it to work otherwise, it might be necessary to make a number of changes to the code.
 
 ## Usage
 If you would like to see Raichu in action, click [here](https://discord.gg/mYjeaZQ) to join our Discord server!

@@ -14,6 +14,7 @@ class Manager(commands.Bot):
             help_command=None,
             intents=discord.Intents.all(),
             application=983846918683770941,
+            # The server name here is staying as is. Old server reference!
             activity=discord.Activity(name="Nincord", type=discord.ActivityType.watching),
             status=discord.Status.online
         )

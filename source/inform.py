@@ -19,7 +19,7 @@ class Inform(commands.Cog):
     async def build(self, interaction: discord.Interaction):
         "Shows information regarding the bot."
         embed = discord.Embed(title="Raichu", url="https://github.com/Nightkingale/Raichu",
-            description="A Discord utility bot for Nincord.", color=0xffff00)
+            description="A Discord utility bot for Nightkingale Studios.", color=0xffff00)
         embed.set_author(name="Nightkingale", url="https://nightkingale.com",
             icon_url="https://avatars.githubusercontent.com/u/63483138?v=4")
         embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/"
@@ -48,7 +48,7 @@ class Inform(commands.Cog):
 
     @inform_group.command()
     @app_commands.choices(server=[
-        Choice(name="Nincord", value="mYjeaZQ"),
+        Choice(name="Nightkingale Studios", value="mYjeaZQ"),
         Choice(name="Gary's homebrew stuff", value="geY4G2NZK9"),
         Choice(name="Puginator Productions", value="Yh2zWxugVE"),
         Choice(name="ResistanceYT's Hangout Lounge", value="ab6P4gB")])
