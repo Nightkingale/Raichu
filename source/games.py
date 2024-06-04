@@ -23,11 +23,8 @@ class Games(commands.Cog):
         self.session = aiohttp.ClientSession()
         self.logger = create_logger(self.__class__.__name__)
 
-    games_group = app_commands.Group(name="games",
-        description="Commands for using game services.")
 
-
-    @games_group.command()
+    @app_commands.command()
     @app_commands.describe(
         member="The member whose RiiTag should be searched for.")
     async def riitag(self, interaction: discord.Interaction, member: discord.Member = None):

@@ -26,65 +26,40 @@ class Admin(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.logger = create_logger(self.__class__.__name__)
-
-    send_group = app_commands.Group(name="send",
-        description="Commands for sending messages as the bot.")
-    sudo_group = app_commands.Group(name="sudo",
-        description="Commands for managing the bot and databases.")
     
 
-    @send_group.command()
+    @app_commands.command()
     @app_commands.describe(
-        recipient="The channel that will receive the message.",
+        recipient="The channel or member that will receive the message.",
         message="The message that you wish to send.")
     @app_commands.default_permissions(manage_messages=True)
-    async def channel(self, interaction: discord.Interaction, recipient: discord.TextChannel,
-        message: str):
-        "Sends a message to a specified channel."
-        await recipient.send(message) # Send the message
-        # Sends a message to the channel that the command specifies.
-        embed = discord.Embed(title=f"Sent to #{recipient}",
+    async def send(self, interaction: discord.Interaction, recipient: str, message: str):
+        "Sends a message to a specified channel or member."
+        # Try to resolve the recipient as a Member or Channel.
+        recipient_id = int(recipient.strip('<@!#>'))
+        recipient_object = interaction.guild.get_member(recipient_id) or interaction.guild.get_channel(recipient_id)
+        if recipient_object is None:
+            await interaction.response.send_message("The recipient provided was invalid!", ephemeral=True)
+            return
+        await recipient_object.send(message)
+        # Prepares a success message with a preview of the sent message.
+        recipient_name = recipient_object.name if isinstance(recipient_object, discord.Member) else f"#{recipient_object.name}"
+        embed = discord.Embed(title=f"Sent to {recipient_name}",
             description="A preview of your sent message.", color=0xffff00)
         embed.set_author(name=interaction.user.name,
             icon_url=interaction.user.avatar)
         embed.add_field(name="Message", value=message)
-        # Send the message to the channel that the command specifies.
-        if interaction.channel != recipient:
-            await interaction.response.send_message("Your message has been sent!",
-                embed=embed, ephemeral=True)
-        else:
-            await interaction.response.send_message("Your message has been sent!",
-                ephemeral=True)
-        self.logger.info(f"{interaction.user.name} sent a message to #{recipient}.")
-
-
-    @send_group.command()
-    @app_commands.describe(
-        recipient="The member that will receive the message.",
-        message="The message that you wish to send.")
-    @app_commands.default_permissions(manage_messages=True)
-    async def member(self, interaction: discord.Interaction, recipient: discord.Member,
-        message: str):
-        "Sends a message to a specified member."
-        await recipient.send(message) # Send the message
-        # Sends a direct message to the user that the command specifies.
-        embed = discord.Embed(title=f"Sent to {recipient.name}",
-            description="A preview of your sent message.", color=0xffff00)
-        embed.set_author(name=interaction.user.name,
-            icon_url=interaction.user.avatar)
-        embed.add_field(name="Message", value=message)
-        # Send the message to the member that the command specifies.
         await interaction.response.send_message("Your message has been sent!",
             embed=embed, ephemeral=True)
-        self.logger.info(f"{interaction.user.name} sent a message to {recipient.name}.")
+        self.logger.info(f"{interaction.user.name} sent a message to {recipient_name}.")
 
 
-    @sudo_group.command()
+    @app_commands.command()
     @app_commands.describe(
         name="The name of the giveaway to manage.",
         amount="The amount of winners to choose.")
     @app_commands.default_permissions(manage_messages=True)
-    async def giveaway(self, interaction: discord.Interaction, name: str, amount: int = 0):
+    async def gift(self, interaction: discord.Interaction, name: str, amount: int = 0):
         "Starts a giveaway, or ends it if amount is specified."
         if amount < 1:
             # Check if the giveaway already exists.
@@ -153,7 +128,7 @@ class Admin(commands.Cog):
             database["Ongoing"].delete_one({"_id": name})
 
 
-    @sudo_group.command()
+    @app_commands.command()
     @app_commands.default_permissions(manage_messages=True)
     async def status(self, interaction: discord.Interaction, text: str = None):
         "Resets the status, or changes it if text is specified."

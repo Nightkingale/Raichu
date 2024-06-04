@@ -11,11 +11,8 @@ class Inform(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
-    inform_group = app_commands.Group(name="inform",
-        description="Commands for miscellaneous information.")
 
-
-    @inform_group.command()
+    @app_commands.command()
     async def build(self, interaction: discord.Interaction):
         "Shows information regarding the bot."
         embed = discord.Embed(title="Raichu", url="https://github.com/Nightkingale/Raichu",
@@ -46,7 +43,7 @@ class Inform(commands.Cog):
             embed=embed)
 
 
-    @inform_group.command()
+    @app_commands.command()
     @app_commands.choices(server=[
         Choice(name="Nightkingale Studios", value="mYjeaZQ"),
         Choice(name="Gary's homebrew stuff", value="geY4G2NZK9"),

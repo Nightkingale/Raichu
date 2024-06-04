@@ -26,11 +26,8 @@ class Gifting(commands.Cog):
         self.bot = bot
         self.logger = create_logger(self.__class__.__name__)
 
-    giveaway_group = app_commands.Group(name="giveaway",
-        description="Commands for managing giveaways.")
 
-
-    @giveaway_group.command()
+    @app_commands.command()
     @app_commands.describe(
         giveaway="The name of the giveaway to join or leave.")
     async def toggle(self, interaction: discord.Interaction, giveaway: str):
