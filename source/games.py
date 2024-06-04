@@ -12,7 +12,7 @@ class Nintendo(discord.ui.View):
         super().__init__()
         # Add buttons for guides to the view.
         self.add_item(discord.ui.Button(
-            label='Wii Guide', url="https://wii.guide/"))
+            label='Wii Guide', url="https://wii.hacks.guide/"))
         self.add_item(discord.ui.Button(
             label='Wii U Hacks Guide', url="https://wiiu.hacks.guide/"))
 
