@@ -10,7 +10,7 @@ from pathlib import Path
 class Manager(commands.Bot):
     def __init__(self):
         super().__init__(
-            command_prefix="r!",
+            command_prefix="!",
             help_command=None,
             intents=discord.Intents.all(),
             application=983846918683770941,
