@@ -17,30 +17,6 @@ class Games(commands.Cog):
 
     @app_commands.command()
     @app_commands.describe(
-        user="The user whose trophy card should be searched for.")
-    async def trophy(self, interaction: discord.Interaction, user: str):
-        "Shows a trophy card from the PSNProfile service."
-        await interaction.response.defer()
-        # Check if the user has a PSNProfile.
-        async with self.session.get(f"https://card.psnprofiles.com/1/{user}.png") as response:
-            # Check if the response from the site actually contains a profile.
-            if response.status == 200:
-                self.logger.info(f"A PSNProfile was fetched for {user}.")
-                embed = discord.Embed(title=f"{user}'s Trophy Card (via PSNProfiles)",
-                    description="A showcase of trophies earned on PlayStation consoles.",
-                    url=f"https://psnprofiles.com/{user}", color=0xffff00)
-                embed.set_footer(text="This feature is powered by an external service!")
-                embed.set_image(url=response.url)
-                # Send the embed to the channel that the command was used in.
-                await interaction.followup.send("A trophy card was successfully found."
-                    + " Here's what it looks like!", embed=embed)
-            else:
-                await interaction.followup.send("There is no associated trophy card with this name!"
-                    + " Visit <https://psnprofiles.com> for more information.")
-
-
-    @app_commands.command()
-    @app_commands.describe(
         member="The member whose RiiTag should be searched for.")
     async def riitag(self, interaction: discord.Interaction, member: discord.Member = None):
         "Shows a RiiTag from the RiiConnect24 service."
@@ -66,6 +42,30 @@ class Games(commands.Cog):
             else:
                 await interaction.followup.send("There is no associated RiiTag for this account!"
                     + " Visit <https://tag.rc24.xyz> for more information.")
+                
+
+    @app_commands.command()
+    @app_commands.describe(
+        user="The user whose trophy card should be searched for.")
+    async def trophy(self, interaction: discord.Interaction, user: str):
+        "Shows a trophy card from the PSNProfile service."
+        await interaction.response.defer()
+        # Check if the user has a PSNProfile.
+        async with self.session.get(f"https://card.psnprofiles.com/1/{user}.png") as response:
+            # Check if the response from the site actually contains a profile.
+            if response.status == 200:
+                self.logger.info(f"A PSNProfile was fetched for {user}.")
+                embed = discord.Embed(title=f"{user}'s Trophy Card (via PSNProfiles)",
+                    description="A showcase of trophies earned on PlayStation consoles.",
+                    url=f"https://psnprofiles.com/{user}", color=0xffff00)
+                embed.set_footer(text="This feature is powered by an external service!")
+                embed.set_image(url=response.url)
+                # Send the embed to the channel that the command was used in.
+                await interaction.followup.send("A trophy card was successfully found."
+                    + " Here's what it looks like!", embed=embed)
+            else:
+                await interaction.followup.send("There is no associated trophy card with this name!"
+                    + " Visit <https://psnprofiles.com> for more information.")
 
 
 async def setup(bot: commands.Bot):
