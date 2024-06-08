@@ -11,7 +11,7 @@ from logger import create_logger
 class Manager(commands.Bot):
     def __init__(self):
         super().__init__(
-            command_prefix="!",
+            command_prefix="?",
             help_command=None,
             intents=discord.Intents.all(),
             application=983846918683770941,
