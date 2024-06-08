@@ -67,5 +67,51 @@ class Admin(commands.Cog):
         self.logger.info(f"{interaction.user.name} has changed the bot's status.")
 
 
+    @commands.command(hidden=True)
+    @commands.is_owner()
+    async def cog(self, ctx, action, cog):
+        "Load, unload, or reload a cog."
+        cog = cog.lower()
+        if action not in ["load", "unload", "reload"]:
+            await ctx.reply("This action is not valid! Please use 'load', 'unload', or 'reload'.")
+            return
+        if cog in ["main", "admin", "logger"]:
+            await ctx.reply("You cannot perform this action on the main, logger, or admin cogs.")
+            return
+        try:
+            self.logger.info(f"{ctx.author.name} has requested to {action} the {cog} cog.")
+            if action == "load":
+                await self.bot.load_extension(f"{cog}")
+                await ctx.reply(f"The {cog} cog was loaded successfully.")
+            elif action == "unload":
+                await self.bot.unload_extension(f"{cog}")
+                await ctx.reply(f"The {cog} cog was unloaded successfully.")
+            elif action == "reload":
+                await self.bot.reload_extension(f"{cog}")
+                await ctx.reply(f"The {cog} cog was reloaded successfully.")
+            await self.bot.tree.sync() # Attempt to sync the commands automatically.
+        except Exception as error:
+            await ctx.reply(f"An exception has occurred! Please check the logs for more information.")
+            self.logger.error(f"An exception has been caught!", exc_info=error)
+
+
+    @commands.command(hidden=True)
+    @commands.is_owner()
+    async def reboot(self, ctx):
+        "Reboots the bot by terminating its process and prompting Heroku."
+        await ctx.reply("The bot process will now be terminated.")
+        self.logger.info(f"{ctx.author.name} has requested a reboot of the bot.")
+        await self.bot.close()
+
+
+    @commands.command(hidden=True)
+    @commands.is_owner()
+    async def sync(self, ctx):
+        "Syncs the bot's commands with Discord."
+        await self.bot.tree.sync()
+        self.logger.info(f"{ctx.author.name} has requested a command sync.")
+        await ctx.reply("The sync has been completed successfully.")
+
+
 async def setup(bot: commands.Bot):
     await bot.add_cog(Admin(bot))

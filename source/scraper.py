@@ -200,7 +200,7 @@ class Scraper(commands.Cog):
                 self.last_videos = await self.check_new_youtube_videos(session, self.last_videos)
                 self.last_releases = await self.check_new_youtube_music_releases(session, self.last_releases)
             except Exception as error:
-                self.logger.error(f"An error occurred while scraping: {error}")
+                self.logger.error(f"An exception has been caught!", exc_info=error)
 
 
 async def setup(bot: commands.Bot):

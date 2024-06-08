@@ -30,45 +30,6 @@ class Manager(commands.Bot):
                 self.logger.info(f"Loaded {filename} successfully from the modules folder.")
 
 
-    @commands.command(hidden=True)
-    @commands.is_owner()
-    async def cog(self, ctx, action, cog):
-        "Load, unload, or reload a cog."
-        if action not in ["load", "unload", "reload"]:
-            await ctx.send("Invalid action. Please use 'load', 'unload', or 'reload'.")
-            return
-        if cog in ["main", "logger"]:
-            await ctx.send("You cannot perform this action on the main or logger cog.")
-            return
-        if action == "load":
-            self.load_extension(f"source.{cog}")
-            await ctx.send(f"{cog} was loaded successfully.")
-        elif action == "unload":
-            self.unload_extension(f"source.{cog}")
-            await ctx.send(f"{cog} was unloaded successfully.")
-        elif action == "reload":
-            self.reload_extension(f"source.{cog}")
-            await ctx.send(f"{cog} was reloaded successfully.")
-
-
-    @commands.command(hidden=True)
-    @commands.is_owner()
-    async def reboot(self, ctx):
-        "Reboots the bot by terminating its process and prompting Heroku."
-        await ctx.send("The bot process will now be terminated.")
-        self.logger.info(f"{ctx.author.name} has requested a reboot of the bot.")
-        await self.bot.close()
-
-
-    @commands.command(hidden=True)
-    @commands.is_owner()
-    async def sync(self, ctx):
-        "Syncs the bot's commands with Discord."
-        await self.bot.tree.sync()
-        self.logger.info(f"{ctx.author.name} has requested a command sync.")
-        await ctx.send("The sync has been completed successfully.")
-
-
 try:
     # Attempt to load the secrets from a file.
     secrets = loads(Path("secrets.json").read_text())

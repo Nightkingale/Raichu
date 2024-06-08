@@ -52,7 +52,8 @@ class Inform(commands.Cog):
     @app_commands.command()
     async def ping(self, interaction: discord.Interaction):
         "Shows the bot's latency."
-        await interaction.response.send_message(f"Pong! {round(self.bot.latency * 1000)}ms")
+        latency = round(self.bot.latency * 1000)
+        await interaction.response.send_message(f"Pong! The latency is {latency}ms.")
 
 
 async def setup(bot: commands.Bot):
