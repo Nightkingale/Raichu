@@ -2,8 +2,8 @@ import discord
 import subprocess
 
 from discord import app_commands
-from discord.ext import commands
 from discord.app_commands import Choice
+from discord.ext import commands
 from subprocess import check_output
 
 
@@ -44,16 +44,10 @@ class Inform(commands.Cog):
 
 
     @app_commands.command()
-    @app_commands.choices(server=[
-        Choice(name="Nightkingale Studios", value="mYjeaZQ"),
-        Choice(name="Gary's homebrew stuff", value="geY4G2NZK9"),
-        Choice(name="Puginator Productions", value="Yh2zWxugVE"),
-        Choice(name="ResistanceYT's Hangout Lounge", value="ab6P4gB")])
-    @app_commands.describe(server="The server to provide a link for.")
-    async def invite(self, interaction: discord.Interaction, server: str):
+    async def invite(self, interaction: discord.Interaction):
         "Sends a link to an affiliated server."
         await interaction.response.send_message("Share this link to invite people! "
-            + f"https://discord.gg/{server}")
+            + f"https://discord.gg/mYjeaZQ")
 
 
 async def setup(bot: commands.Bot):
