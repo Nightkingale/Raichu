@@ -47,6 +47,12 @@ class Inform(commands.Cog):
         "Sends a link to an affiliated server."
         await interaction.response.send_message("Share this link to invite people! "
             + f"https://discord.gg/mYjeaZQ")
+        
+
+    @app_commands.command()
+    async def ping(self, interaction: discord.Interaction):
+        "Shows the bot's latency."
+        await interaction.response.send_message(f"Pong! {round(self.bot.latency * 1000)}ms")
 
 
 async def setup(bot: commands.Bot):
