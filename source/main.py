@@ -30,6 +30,24 @@ class Manager(commands.Bot):
                 self.logger.info(f"Loaded {filename} successfully from the modules folder.")
 
 
+    @commands.command(hidden=True)
+    @commands.is_owner()
+    async def reboot(self, ctx):
+        "Reboots the bot by terminating its process and prompting Heroku."
+        await ctx.send("The bot process will now be terminated.")
+        self.logger.info(f"{ctx.author.name} has requested a reboot of the bot.")
+        await self.bot.close()
+
+
+    @commands.command(hidden=True)
+    @commands.is_owner()
+    async def sync(self, ctx):
+        "Syncs the bot's commands with Discord."
+        await self.bot.tree.sync()
+        self.logger.info(f"{ctx.author.name} has requested a command sync.")
+        await ctx.send("The sync has been completed successfully.")
+
+
 try:
     # Attempt to load the secrets from a file.
     secrets = loads(Path("secrets.json").read_text())
