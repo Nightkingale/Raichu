@@ -7,22 +7,37 @@ from discord.ext import commands
 
 from logger import create_logger
 
-
-class Nintendo(discord.ui.View):
-    def __init__(self):
-        super().__init__()
-        # Add buttons for guides to the view.
-        self.add_item(discord.ui.Button(
-            label='Wii Hacks Guide', url="https://wii.hacks.guide/"))
-        self.add_item(discord.ui.Button(
-            label='Wii U Hacks Guide', url="https://wiiu.hacks.guide/"))
-
         
 class Games(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.session = aiohttp.ClientSession()
         self.logger = create_logger(self.__class__.__name__)
+
+
+    @app_commands.command()
+    @app_commands.describe(
+        user="The user whose PSNProfile should be searched for.")
+    async def psnprofile(self, interaction: discord.Interaction, user: str):
+        "Shows a trophy card from the PSNProfile service."
+        await interaction.response.defer()
+        # Check if the user has a PSNProfile.
+        async with self.session.get(f"https://card.psnprofiles.com/1/{user}.png") as response:
+            # Check if the response from the site actually contains a profile.
+            if response.status == 200:
+                self.logger.info(f"A PSNProfile was fetched for {user}.")
+                embed = discord.Embed(title=f"{user}'s PSNProfile",
+                    description="A showcase of trophies earned on PlayStation consoles.",
+                    url=f"https://psnprofiles.com/{user}", color=0xffff00)
+                embed.set_footer(text="This feature is powered by an external service!")
+                embed.set_image(url=response.url)
+                # Send the embed to the channel that the command was used in.
+                await interaction.followup.send("A PSNProfile was successfully found. "
+                    + "Here's what it looks like!", embed=embed)
+            else:
+                await interaction.followup.send("There is no associated PSNProfile with this name!"
+                    + " Visit <https://psnprofiles.com> for more information.")
+        
 
 
     @app_commands.command()
@@ -47,11 +62,11 @@ class Games(commands.Cog):
                 embed.set_footer(text="This feature is powered by an external service!")
                 embed.set_image(url=tag_link)
                 # Send the embed to the channel that the command was used in.
-                await interaction.followup.send("A RiiTag has been found! "
-                    + "Here's what it looks like.", embed=embed)
+                await interaction.followup.send("A RiiTag was successfully found. "
+                    + "Here's what it looks like!", embed=embed)
             else:
                 await interaction.followup.send("There is no associated RiiTag for this account!"
-                    + " Visit <https://tag.rc24.xyz> for more information.", view=Nintendo())
+                    + " Visit <https://tag.rc24.xyz> for more information.")
 
 
 async def setup(bot: commands.Bot):
