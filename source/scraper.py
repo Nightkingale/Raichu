@@ -1,5 +1,4 @@
 import aiohttp
-import asyncio
 import datetime
 import discord
 import json
@@ -7,6 +6,7 @@ import re
 
 from bs4 import BeautifulSoup
 from discord.ext import commands, tasks
+
 from logger import create_logger
 
 

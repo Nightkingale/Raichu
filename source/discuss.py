@@ -8,8 +8,9 @@ import random
 
 from discord.ext import commands, tasks
 from json import loads
-from logger import create_logger
 from pathlib import Path
+
+from logger import create_logger
 
 
 utc = datetime.timezone.utc

@@ -2,7 +2,6 @@ import discord
 import subprocess
 
 from discord import app_commands
-from discord.app_commands import Choice
 from discord.ext import commands
 from subprocess import check_output
 

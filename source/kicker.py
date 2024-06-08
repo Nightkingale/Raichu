@@ -1,8 +1,8 @@
 import datetime
-import discord
 
 from discord.ext import commands, tasks
 from zoneinfo import ZoneInfo
+
 from logger import create_logger
 
 

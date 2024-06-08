@@ -5,8 +5,9 @@ import pymongo
 from discord import app_commands
 from discord.ext import commands
 from json import loads
-from logger import create_logger
 from pathlib import Path
+
+from logger import create_logger
 
 
 try:
