@@ -17,8 +17,8 @@ class Games(commands.Cog):
 
     @app_commands.command()
     @app_commands.describe(
-        user="The user whose PSNProfile should be searched for.")
-    async def psnprofile(self, interaction: discord.Interaction, user: str):
+        user="The user whose trophy card should be searched for.")
+    async def trophy(self, interaction: discord.Interaction, user: str):
         "Shows a trophy card from the PSNProfile service."
         await interaction.response.defer()
         # Check if the user has a PSNProfile.
@@ -26,18 +26,17 @@ class Games(commands.Cog):
             # Check if the response from the site actually contains a profile.
             if response.status == 200:
                 self.logger.info(f"A PSNProfile was fetched for {user}.")
-                embed = discord.Embed(title=f"{user}'s PSNProfile",
+                embed = discord.Embed(title=f"{user}'s Trophy Card (via PSNProfiles)",
                     description="A showcase of trophies earned on PlayStation consoles.",
                     url=f"https://psnprofiles.com/{user}", color=0xffff00)
                 embed.set_footer(text="This feature is powered by an external service!")
                 embed.set_image(url=response.url)
                 # Send the embed to the channel that the command was used in.
-                await interaction.followup.send("A PSNProfile was successfully found. "
-                    + "Here's what it looks like!", embed=embed)
+                await interaction.followup.send("A trophy card was successfully found."
+                    + " Here's what it looks like!", embed=embed)
             else:
-                await interaction.followup.send("There is no associated PSNProfile with this name!"
+                await interaction.followup.send("There is no associated trophy card with this name!"
                     + " Visit <https://psnprofiles.com> for more information.")
-        
 
 
     @app_commands.command()
@@ -56,14 +55,14 @@ class Games(commands.Cog):
             if response.status == 200 and response.headers["content-type"] == "image/png":
                 self.logger.info(f"A RiiTag was fetched for {member.display_name} at {tag_link}.")
                 embed = discord.Embed(title=f"{member.display_name}'s RiiTag (via RiiConnect24)",
-                    description="A showcase of recently played games on Nintendo Wii and Wii U.",
+                    description="A showcase of recently played games on Nintendo consoles.",
                     url="https://tag.rc24.xyz/", color=0xffff00)
-                embed.set_author(name=member.name, icon_url=member.avatar)
+                # embed.set_author(name=member.name, icon_url=member.avatar)
                 embed.set_footer(text="This feature is powered by an external service!")
                 embed.set_image(url=tag_link)
                 # Send the embed to the channel that the command was used in.
-                await interaction.followup.send("A RiiTag was successfully found. "
-                    + "Here's what it looks like!", embed=embed)
+                await interaction.followup.send("A RiiTag was successfully found."
+                    + " Here's what it looks like!", embed=embed)
             else:
                 await interaction.followup.send("There is no associated RiiTag for this account!"
                     + " Visit <https://tag.rc24.xyz> for more information.")
