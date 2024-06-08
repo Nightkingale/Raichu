@@ -32,6 +32,27 @@ class Manager(commands.Bot):
 
     @commands.command(hidden=True)
     @commands.is_owner()
+    async def cog(self, ctx, action, cog):
+        "Load, unload, or reload a cog."
+        if action not in ["load", "unload", "reload"]:
+            await ctx.send("Invalid action. Please use 'load', 'unload', or 'reload'.")
+            return
+        if cog in ["main", "logger"]:
+            await ctx.send("You cannot perform this action on the main or logger cog.")
+            return
+        if action == "load":
+            self.load_extension(f"source.{cog}")
+            await ctx.send(f"{cog} was loaded successfully.")
+        elif action == "unload":
+            self.unload_extension(f"source.{cog}")
+            await ctx.send(f"{cog} was unloaded successfully.")
+        elif action == "reload":
+            self.reload_extension(f"source.{cog}")
+            await ctx.send(f"{cog} was reloaded successfully.")
+
+
+    @commands.command(hidden=True)
+    @commands.is_owner()
     async def reboot(self, ctx):
         "Reboots the bot by terminating its process and prompting Heroku."
         await ctx.send("The bot process will now be terminated.")
