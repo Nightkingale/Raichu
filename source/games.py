@@ -13,7 +13,7 @@ class Nintendo(discord.ui.View):
         super().__init__()
         # Add buttons for guides to the view.
         self.add_item(discord.ui.Button(
-            label='Wii Guide', url="https://wii.hacks.guide/"))
+            label='Wii Hacks Guide', url="https://wii.hacks.guide/"))
         self.add_item(discord.ui.Button(
             label='Wii U Hacks Guide', url="https://wiiu.hacks.guide/"))
 
@@ -32,13 +32,13 @@ class Games(commands.Cog):
         "Shows a RiiTag from the RiiConnect24 service."
         if member == None:
             member = interaction.user
+        await interaction.response.defer()
         # Discord cache is wonky, so we need to add a randomizer to the URL.
         tag_link = f"https://tag.rc24.xyz/{member.id}/tag.max.png?randomizer={random.random()}"
         # Check if the member has a RiiTag.
         async with self.session.get(tag_link) as response:
             # Check if the response from the site actually contains an image.
             if response.status == 200 and response.headers["content-type"] == "image/png":
-                await interaction.response.defer()
                 self.logger.info(f"A RiiTag was fetched for {member.display_name} at {tag_link}.")
                 embed = discord.Embed(title=f"{member.display_name}'s RiiTag (via RiiConnect24)",
                     description="A showcase of recently played games on Nintendo Wii and Wii U.",
@@ -50,9 +50,8 @@ class Games(commands.Cog):
                 await interaction.followup.send("A RiiTag has been found! "
                     + "Here's what it looks like.", embed=embed)
             else:
-                await interaction.response.send_message("There is no associated RiiTag for this account!"
-                    + " To set one up, visit <https://tag.rc24.xyz/> for more information about RiiTags"
-                    + " and how they can be used with a modified Wii or Wii U console.", view=Nintendo())
+                await interaction.followup.send("There is no associated RiiTag for this account!"
+                    + " Visit <https://tag.rc24.xyz> for more information.", view=Nintendo())
 
 
 async def setup(bot: commands.Bot):
