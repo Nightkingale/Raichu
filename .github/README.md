@@ -6,7 +6,7 @@ Raichu is a simple bot that is currently being developed and expanded on. It uti
 The bot itself is programmed using the Discord.py library and is primarily run on its own virtual private server (called "Area Zero"). While recent updates ease deployment on other servers, some customization may be required.
 
 ## Usage
-If you would like to see Raichu in action, click [here](https://discord.gg/mYjeaZQ) to join our Discord server!
+If you would like to see Raichu in action, click [here](https://discord.nightkingale.com) to join our Discord server!
 * When the bot is invited to a server with the correct permissions, typing `/` in the message box will show a list of commands one can send.
 * Each command has a different purpose, such as sending a message or acting as a chatbot.
 
