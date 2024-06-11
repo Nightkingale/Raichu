@@ -98,10 +98,14 @@ class Admin(commands.Cog):
     @commands.command(hidden=True)
     @commands.is_owner()
     async def reboot(self, ctx):
-        "Reboots the bot by terminating its process and prompting Heroku."
+        "Reboots the bot and checks for updates."
         await ctx.reply("The bot process will now be terminated.")
         self.logger.info(f"{ctx.author.name} has requested a reboot of the bot.")
-        await self.bot.close()
+        if os.name == "posix":
+            # Run the updater service in Area Zero.
+            os.system("sudo systemctl start raichu_update")
+        else:
+            await self.bot.close()
 
 
     @commands.command(hidden=True)
