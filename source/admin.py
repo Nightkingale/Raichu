@@ -97,15 +97,24 @@ class Admin(commands.Cog):
 
     @commands.command(hidden=True)
     @commands.is_owner()
-    async def reboot(self, ctx):
+    async def reboot(self, ctx, update: bool = True):
         "Reboots the bot and checks for updates."
-        await ctx.reply("The bot will now terminate and update.")
-        self.logger.info(f"{ctx.author.name} has requested a reboot of the bot.")
-        if os.name == "posix":
-            # Run the updater service in Area Zero.
-            os.system("sudo systemctl start raichu_update")
+        if update:
+            await ctx.reply("The bot will now terminate and update.")
+            self.logger.info(f"{ctx.author.name} has requested an update of the bot.")
+            if os.name == "posix":
+                # Run the updater service in Area Zero.
+                os.system("sudo systemctl start raichu_update")
+            else:
+                await self.bot.close()
         else:
-            await self.bot.close()
+            await ctx.reply("The bot will now terminate and restart.")
+            self.logger.info(f"{ctx.author.name} has requested a reboot of the bot.")
+            if os.name == "posix":
+                # Restart Raichu's service in Area Zero.
+                os.system("sudo systemctl restart raichu")
+            else:
+                await self.bot.close()
 
 
     @commands.command(hidden=True)
