@@ -99,7 +99,7 @@ class Admin(commands.Cog):
     @commands.is_owner()
     async def reboot(self, ctx):
         "Reboots the bot and checks for updates."
-        await ctx.reply("The bot process will now be terminated.")
+        await ctx.reply("The bot will now terminate and update.")
         self.logger.info(f"{ctx.author.name} has requested a reboot of the bot.")
         if os.name == "posix":
             # Run the updater service in Area Zero.
