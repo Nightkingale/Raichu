@@ -191,7 +191,7 @@ class Scraper(commands.Cog):
 
 
     # Main function for the on_ready event
-    @tasks.loop(minutes=15)
+    @tasks.loop(minutes=5)
     async def scraper(self):
         async with aiohttp.ClientSession() as session:
             try:
