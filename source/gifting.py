@@ -1,5 +1,4 @@
 import discord
-import os
 import pymongo
 import random
 
@@ -11,15 +10,10 @@ from pathlib import Path
 from logger import create_logger
 
 
-try:
-    # Attempt to load the secrets from a file.
-    secrets = loads(Path("secrets.json").read_text())
-except FileNotFoundError:
-    # This is used as a fallback when the secrets file doesn't exist.
-    secrets = {"MONGODB_URI_KEY": os.environ["MONGODB_URI_KEY"]}
+config = loads(Path("config.json").read_text())
 
 
-client = pymongo.MongoClient(secrets["MONGODB_URI_KEY"])
+client = pymongo.MongoClient(config["secrets"]["MONGODB_URI_KEY"])
 database = client["Gifting"]
 
 

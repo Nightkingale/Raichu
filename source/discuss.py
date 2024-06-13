@@ -2,8 +2,6 @@ import aiohttp
 import asyncio
 import datetime
 import discord
-import json
-import os
 import random
 
 from discord.ext import commands, tasks
@@ -20,16 +18,7 @@ prompt_times = [
 ]
 
 
-with open("config.json") as file:
-    config = json.load(file)
-
-
-try:
-    # Attempt to load the secrets from a file.
-    secrets = loads(Path("secrets.json").read_text())
-except FileNotFoundError:
-    # This is used as a fallback when the secrets file doesn't exist.
-    secrets = {"CHATGPT_API_KEY": os.environ["CHATGPT_API_KEY"]}
+config = loads(Path("config.json").read_text())
 
 
 class Discuss(commands.Cog):
@@ -47,7 +36,7 @@ class Discuss(commands.Cog):
         # talk to the openai endpoint and make a request
         # https://beta.openai.com/docs/api-reference/completions/create
         headers = {
-            "Authorization": f"Bearer {secrets['CHATGPT_API_KEY']}",
+            "Authorization": f"Bearer {config['secrets']['CHATGPT_API_KEY']}",
             "Content-Type": "application/json",
         }
         data = {

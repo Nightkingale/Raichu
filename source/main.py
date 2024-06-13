@@ -8,6 +8,9 @@ from pathlib import Path
 from logger import create_logger
 
 
+config = loads(Path("config.json").read_text())
+
+
 class Manager(commands.Bot):
     def __init__(self):
         super().__init__(
@@ -30,13 +33,5 @@ class Manager(commands.Bot):
                 self.logger.info(f"Loaded {filename} successfully from the modules folder.")
 
 
-try:
-    # Attempt to load the secrets from a file.
-    secrets = loads(Path("secrets.json").read_text())
-except FileNotFoundError:
-    # This is used as a fallback when the secrets file doesn't exist.
-    secrets = {"DISCORD_BOT_TOKEN": os.environ["DISCORD_BOT_TOKEN"]}
-
-
 bot = Manager() # Run the bot.
-bot.run(secrets["DISCORD_BOT_TOKEN"], log_handler=None)
+bot.run(config["secrets"]["DISCORD_BOT_TOKEN"], log_handler=None)

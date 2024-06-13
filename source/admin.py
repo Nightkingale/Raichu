@@ -1,21 +1,10 @@
 import discord
 import os
-import pymongo
 
 from discord import app_commands
 from discord.ext import commands
-from json import loads
-from pathlib import Path
 
 from logger import create_logger
-
-
-try:
-    # Attempt to load the secrets from a file.
-    secrets = loads(Path("secrets.json").read_text())
-except FileNotFoundError:
-    # This is used as a fallback when the secrets file doesn't exist.
-    secrets = {"MONGODB_URI_KEY": os.environ["MONGODB_URI_KEY"]}
 
 
 class Admin(commands.Cog):

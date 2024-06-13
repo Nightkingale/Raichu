@@ -2,4 +2,4 @@
 __pycache__/
 
 # Local Data
-secrets.json
+config.json

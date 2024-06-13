@@ -1,17 +1,17 @@
 import aiohttp
 import datetime
 import discord
-import json
 import re
 
 from bs4 import BeautifulSoup
 from discord.ext import commands, tasks
+from json import loads
+from pathlib import Path
 
 from logger import create_logger
 
 
-with open("config.json") as file:
-    config = json.load(file)
+config = loads(Path("config.json").read_text())
 
 
 class Scraper(commands.Cog):
@@ -101,7 +101,7 @@ class Scraper(commands.Cog):
             # Grab the JSON data from the page.
             script = soup.find("script", text=re.compile("ytInitialData"))
             json_text = re.search(r"ytInitialData\s*=\s*({.*?});", script.string).group(1)
-            data = json.loads(json_text)
+            data = loads(json_text)
             # Grab the list of videos from the scraped JSON data.
             videos = data['contents']['twoColumnBrowseResultsRenderer']['tabs'][1]['tabRenderer'] \
                 ['content']['richGridRenderer']['contents']
@@ -149,7 +149,7 @@ class Scraper(commands.Cog):
             # Grab the JSON data from the page.
             script = soup.find("script", text=re.compile("ytInitialData"))
             json_text = re.search(r"ytInitialData\s*=\s*({.*?});", script.string).group(1)
-            data = json.loads(json_text)
+            data = loads(json_text)
             # Grab the list of releases from scraped JSON data.
             releases = data['contents']['twoColumnBrowseResultsRenderer']['tabs'][3]['tabRenderer'] \
                 ['content']['richGridRenderer']['contents']
