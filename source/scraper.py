@@ -87,7 +87,7 @@ class Scraper(commands.Cog):
                     self.logger.info(f"A new SoundCloud track was scraped called {track_info[0]}.")
                     last_tracks.append(track_info[1])
                     embed = self.create_embed("track", *track_info)
-                    channel = self.bot.get_channel(config["channels"]["#repository-log"])
+                    channel = self.bot.get_channel(config["channels"]["#content-updates"])
                     await channel.send(embed=embed)
         return last_tracks
 
@@ -135,7 +135,7 @@ class Scraper(commands.Cog):
                     self.logger.info(f"A new YouTube video was scraped called {video_info[0]}.")
                     last_videos.append(video_info[1])
                     embed = self.create_embed("video", *video_info)
-                    channel = self.bot.get_channel(config["channels"]["#repository-log"])
+                    channel = self.bot.get_channel(config["channels"]["#content-updates"])
                     await channel.send(embed=embed)
         return last_videos
 
@@ -185,7 +185,7 @@ class Scraper(commands.Cog):
                     self.logger.info(f"A new YouTube Music release was scraped called {release_info[0]}")
                     last_releases.append(release_info[1])
                     embed = self.create_embed("release", *release_info)
-                    channel = self.bot.get_channel(config["channels"]["#repository-log"])
+                    channel = self.bot.get_channel(config["channels"]["#content-updates"])
                     await channel.send(embed=embed)
             return last_releases
 

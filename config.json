@@ -1,8 +1,9 @@
 {
     "channels": {
+        "#content-updates": 1127330813835485315,
         "#chat-hangout": 1127657272315740260,
-        "#bot-discussion": 1011344305966821508,
-        "#repository-log": 1127330813835485315
+        "#bot-commands": 1011344305966821508,
+        "#github-logs": 725045178720583756
     },
     "discuss": {
         "discussion_starters": [
