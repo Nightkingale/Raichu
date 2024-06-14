@@ -1,6 +1,6 @@
 import discord
-import pymongo
 import random
+import sqlite3
 
 from discord import app_commands
 from discord.ext import commands
@@ -13,8 +13,26 @@ from logger import create_logger
 secret = loads(Path("config/secret.json").read_text())
 
 
-client = pymongo.MongoClient(secret["MONGODB_URI_KEY"])
-database = client["Gifting"]
+connection = sqlite3.connect('database/gifting.sqlite')
+cursor = connection.cursor()
+
+
+# Create tables if they don't exist.
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS Ongoing (
+    id TEXT PRIMARY KEY,
+    host INTEGER,
+    users TEXT
+)
+""")
+
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS Archived (
+    id TEXT PRIMARY KEY,
+    host INTEGER,
+    users TEXT
+)
+""")
 
 
 class Gifting(commands.Cog):
@@ -29,25 +47,24 @@ class Gifting(commands.Cog):
     async def gift(self, interaction: discord.Interaction, giveaway: str):
         "Adds or removes yourself from a giveaway."
         # Check if the giveaway exists and is not archived.
-        giveaway_entry = database["Ongoing"].find_one({"_id": giveaway})
+        cursor.execute("SELECT * FROM Ongoing WHERE id = ?", (giveaway,))
+        giveaway_entry = cursor.fetchone()
         if not giveaway_entry:
             await interaction.response.send_message("That giveaway does not exist! Make sure you typed the name exactly as announced.",
                 ephemeral=True)
             return
-        # Initialize the users field if it doesn't exist.
-        if "users" not in giveaway_entry:
-            database["Ongoing"].update_one({"_id": giveaway}, {"$set": {"users": []}})
-            giveaway_entry["users"] = []
         # Check if the user has already entered the giveaway.
-        if interaction.user.id in giveaway_entry["users"]:
-            database["Ongoing"].update_one({"_id": giveaway}, {"$pull": {"users": interaction.user.id}})
+        if str(interaction.user.id) in giveaway_entry[2]:
+            cursor.execute("UPDATE Ongoing SET users = ? WHERE id = ?", (giveaway_entry[2].replace(str(interaction.user.id), ""), giveaway))
             await interaction.response.send_message(f"You have left the **{giveaway}** giveaway. We're sorry to see you go!", ephemeral=True)
             self.logger.info(f"{interaction.user.name} has left the {giveaway} giveaway.")
+            connection.commit()
             return
         # Add the user to the giveaway.
-        database["Ongoing"].update_one({"_id": giveaway}, {"$push": {"users": interaction.user.id}})
+        cursor.execute("UPDATE Ongoing SET users = ? WHERE id = ?", (f"{giveaway_entry[2]} {interaction.user.id}", giveaway))
         await interaction.response.send_message(f"You have entered the **{giveaway}** giveaway! We wish you the best of luck!", ephemeral=True)
         self.logger.info(f"{interaction.user.name} has joined the {giveaway} giveaway.")
+        connection.commit()
 
 
     @app_commands.command()
@@ -59,19 +76,22 @@ class Gifting(commands.Cog):
         "Starts a giveaway, or ends it if amount is specified."
         if amount < 1:
             # Check if the giveaway already exists.
-            if database["Ongoing"].find_one({"_id": name}):
+            cursor.execute("SELECT * FROM Ongoing WHERE id = ?", (name,))
+            giveaway_entry = cursor.fetchone()
+            if giveaway_entry:
                 await interaction.response.send_message("That giveaway already exists! Please choose a different name.",
                     ephemeral=True)
                 return
             # Create a new giveaway.
-            database["Ongoing"].insert_one({"_id": name, "host": interaction.user.id, "users": []})
+            cursor.execute("INSERT INTO Ongoing (id, host, users) VALUES (?, ?, ?)", (name, interaction.user.id, ""))
             await interaction.response.send_message(f"The **{name}** giveaway has been started! "
                 + "Please use the `end` action to choose a winner.",
                 ephemeral=True)
             self.logger.info(f"{interaction.user.name} has started the {name} giveaway.")
         else:
             # Check if the giveaway exists.
-            giveaway_entry = database["Ongoing"].find_one({"_id": name})
+            cursor.execute("SELECT * FROM Ongoing WHERE id = ?", (name,))
+            giveaway_entry = cursor.fetchone()
             if not giveaway_entry:
                 await interaction.response.send_message("That giveaway does not exist! Make sure you typed the name exactly as announced.",
                     ephemeral=True)
@@ -81,22 +101,22 @@ class Gifting(commands.Cog):
                 await interaction.response.send_message("You must choose at least one winner for the giveaway!",
                     ephemeral=True)
                 return
-            if amount > len(giveaway_entry["users"]):
-                participant_count = len(giveaway_entry["users"])
+            if amount > len(giveaway_entry[2]):
+                participant_count = len(giveaway_entry[2])
                 await interaction.response.send_message(
                     f"You cannot choose more winners than there are participants (currently {participant_count}).",
                     ephemeral=True
                 )
                 return
             # Choose winner(s), making sure not to pick the same person twice.
-            winners = random.sample(giveaway_entry["users"], amount)
+            winners = random.sample(giveaway_entry[2].split(), amount)
             # Send a message to the channel congratulating and mentioning the winner(s).
             winner_ids = [f'<@{winner_id}>' for winner_id in winners]
             # Create an embed for the giveaway winner(s).
             embed = discord.Embed(title=f"Winner{'s' if amount > 1 else ''} of the {name} Giveaway",
                 description=f"Congratulations to the winner{'s' if amount > 1 else ''} of the giveaway!", color=0xffff00)
             try:
-                host = await self.bot.fetch_user(giveaway_entry["host"])
+                host = await self.bot.fetch_user(giveaway_entry[1])
             except discord.NotFound:
                 host = interaction.user
             embed.set_author(name=host.display_name, icon_url=host.display_avatar)
@@ -120,8 +140,9 @@ class Gifting(commands.Cog):
                 embed=embed)
             self.logger.info(f"{interaction.user.name} has decided for the {name} giveaway.")
             # Move the giveaway to Archived from Ongoing.
-            database["Archived"].replace_one({"_id": name}, giveaway_entry, upsert=True)
-            database["Ongoing"].delete_one({"_id": name})
+            cursor.execute("INSERT INTO Archived (id, host, users) VALUES (?, ?, ?)", (name, giveaway_entry[1], giveaway_entry[2]))
+            cursor.execute("DELETE FROM Ongoing WHERE id = ?", (name,))
+        connection.commit()
 
 
 async def setup(bot: commands.Bot):
