@@ -11,7 +11,7 @@ from pathlib import Path
 from logger import create_logger
 
 
-config = loads(Path("config.json").read_text())
+config = loads(Path("config/config.json").read_text())
 
 
 class Scraper(commands.Cog):

@@ -1,14 +1,14 @@
 import discord
-import json
 import os
 
 from discord.ext import commands
+from json import loads
+from pathlib import Path
 
 from logger import create_logger
 
 
-with open("config.json") as file:
-    config = json.load(file)
+config = loads(Path("config/config.json").read_text())
 
 
 class Updater(commands.Cog):

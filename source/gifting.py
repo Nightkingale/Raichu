@@ -10,10 +10,10 @@ from pathlib import Path
 from logger import create_logger
 
 
-config = loads(Path("config.json").read_text())
+secret = loads(Path("config/secret.json").read_text())
 
 
-client = pymongo.MongoClient(config["secrets"]["MONGODB_URI_KEY"])
+client = pymongo.MongoClient(secret["MONGODB_URI_KEY"])
 database = client["Gifting"]
 
 

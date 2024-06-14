@@ -8,7 +8,7 @@ from pathlib import Path
 from logger import create_logger
 
 
-config = loads(Path("config.json").read_text())
+secret = loads(Path("config/secret.json").read_text())
 
 
 class Manager(commands.Bot):
@@ -34,4 +34,4 @@ class Manager(commands.Bot):
 
 
 bot = Manager() # Run the bot.
-bot.run(config["secrets"]["DISCORD_BOT_TOKEN"], log_handler=None)
+bot.run(secret["DISCORD_BOT_TOKEN"], log_handler=None)

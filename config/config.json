@@ -1,0 +1,23 @@
+{
+    "channels": {
+        "#code-of-conduct": 450903022613168129,
+        "#message-board": 738920609630912604,
+        "#content-updates": 1127330813835485315,
+        "#chat-hangout": 1127657272315740260,
+        "#the-deep-end": 1191964838394597457,
+        "#staff-hangout": 478388911350087709,
+        "#introductions": 1246257135529103561,
+        "#friend-codes": 1246280624566960198,
+        "#minecraft-chat": 1249753205307478058,
+        "#bot-commands": 1011344305966821508,
+        "#github-logs": 725045178720583756,
+        "#development": 1246622108663021639
+    },
+    "roles": {
+        "@Server Bot": 450886915340763151,
+        "@Server Owner": 1238893958159925391,
+        "@Server Moderator": 450903750648004608,
+        "@Server Booster": 616335384791482389,
+        "@Server Supporter": 1192190765288411277
+    }
+}

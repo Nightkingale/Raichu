@@ -18,7 +18,9 @@ prompt_times = [
 ]
 
 
-config = loads(Path("config.json").read_text())
+config = loads(Path("config/config.json").read_text())
+discuss = loads(Path("config/discuss.json").read_text())
+secret = loads(Path("config/secret.json").read_text())
 
 
 class Discuss(commands.Cog):
@@ -36,7 +38,7 @@ class Discuss(commands.Cog):
         # talk to the openai endpoint and make a request
         # https://beta.openai.com/docs/api-reference/completions/create
         headers = {
-            "Authorization": f"Bearer {config['secrets']['CHATGPT_API_KEY']}",
+            "Authorization": f"Bearer {secret['CHATGPT_API_KEY']}",
             "Content-Type": "application/json",
         }
         data = {
@@ -73,7 +75,7 @@ class Discuss(commands.Cog):
     @tasks.loop(time=prompt_times)
     async def discussion_starter(self):
         await self.bot.wait_until_ready()
-        discussion_starters = config["discuss"]["discussion_starters"]
+        discussion_starters = discuss["topics"]
         channel = self.bot.get_channel(config["channels"]["#chat-hangout"])
         # The prompt for stating a fact about a discussion starter.
         fact_prompt = (
