@@ -1,4 +1,5 @@
 import discord
+import os
 import random
 import sqlite3
 
@@ -13,7 +14,12 @@ from logger import create_logger
 secret = loads(Path("config/secret.json").read_text())
 
 
-connection = sqlite3.connect('database/gifting.sqlite')
+# Check if the database directory exists, if not, create it.
+if not os.path.exists("database"):
+    os.makedirs("database")
+
+# Connect to the database now that the directory exists.
+connection = sqlite3.connect("database/gifting.sqlite")
 cursor = connection.cursor()
 
 
