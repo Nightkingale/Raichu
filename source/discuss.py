@@ -12,10 +12,6 @@ from logger import create_logger
 
 
 utc = datetime.timezone.utc
-prompt_times = [
-    datetime.time(hour=0, tzinfo=utc),
-    datetime.time(hour=12, tzinfo=utc)
-]
 
 
 config = loads(Path("config/config.json").read_text())
@@ -72,7 +68,7 @@ class Discuss(commands.Cog):
 
     # Every twelve hours, a prompt will be sent to the main discussion channel.
     # Currently, it is either a fact or a question about a conversation starter.
-    @tasks.loop(time=prompt_times)
+    @tasks.loop(time=datetime.time(hour=12, tzinfo=utc))
     async def discussion_starter(self):
         await self.bot.wait_until_ready()
         discussion_starters = discuss["topics"]
