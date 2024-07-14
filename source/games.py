@@ -22,10 +22,12 @@ class Games(commands.Cog):
         "Shows a RiiTag from the RiiConnect24 service."
         if member == None:
             member = interaction.user
-        await interaction.response.defer()
+
         # Discord cache is wonky, so we need to add a randomizer to the URL.
         tag_link = f"https://tag.rc24.xyz/{member.id}/tag.max.png?randomizer={random.random()}"
+
         # Check if the member has a RiiTag.
+        await interaction.response.defer()
         async with self.session.get(tag_link) as response:
             # Check if the response from the site actually contains an image.
             if response.status == 200 and response.headers["content-type"] == "image/png":
@@ -49,8 +51,8 @@ class Games(commands.Cog):
         user="The user whose trophy card should be searched for.")
     async def trophy(self, interaction: discord.Interaction, user: str):
         "Shows a trophy card from the PSNProfile service."
-        await interaction.response.defer()
         # Check if the user has a PSNProfile.
+        await interaction.response.defer()
         async with self.session.get(f"https://card.psnprofiles.com/1/{user}.png") as response:
             # Check if the response from the site actually contains a profile.
             if response.status == 200:

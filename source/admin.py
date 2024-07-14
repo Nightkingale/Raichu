@@ -27,10 +27,12 @@ class Admin(commands.Cog):
             await interaction.response.send_message("The recipient provided was invalid!", ephemeral=True)
             return
         allowed_mentions = discord.AllowedMentions(everyone=False, roles=True, users=True)
+
         # Check if the sender could mention everyone, then set the allowed mentions accordingly.
         if interaction.channel.permissions_for(interaction.user).mention_everyone:
             allowed_mentions.everyone = True
         await recipient_object.send(message, allowed_mentions=allowed_mentions)
+
         # Prepares a success message with a preview of the sent message.
         recipient_name = recipient_object.name if isinstance(recipient_object, discord.Member) else f"#{recipient_object.name}"
         embed = discord.Embed(title=f"Sent to {recipient_name}",
@@ -68,9 +70,11 @@ class Admin(commands.Cog):
         if action not in ["load", "unload", "reload"]:
             await ctx.reply("This action is not valid! Please use 'load', 'unload', or 'reload'.")
             return
+        
         if cog in ["main", "admin", "logger"]:
             await ctx.reply("You cannot perform this action on the main, logger, or admin cogs.")
             return
+        
         try:
             self.logger.info(f"{ctx.author.name} has requested to {action} the {cog} cog.")
             if action == "load":

@@ -59,6 +59,7 @@ class Gifting(commands.Cog):
             await interaction.response.send_message("That giveaway does not exist! Make sure you typed the name exactly as announced.",
                 ephemeral=True)
             return
+        
         # Check if the user has already entered the giveaway.
         if str(interaction.user.id) in giveaway_entry[2]:
             cursor.execute("UPDATE Ongoing SET users = ? WHERE id = ?", (giveaway_entry[2].replace(str(interaction.user.id), ""), giveaway))
@@ -66,6 +67,7 @@ class Gifting(commands.Cog):
             self.logger.info(f"{interaction.user.name} has left the {giveaway} giveaway.")
             connection.commit()
             return
+        
         # Add the user to the giveaway.
         cursor.execute("UPDATE Ongoing SET users = ? WHERE id = ?", (f"{giveaway_entry[2]} {interaction.user.id}", giveaway))
         await interaction.response.send_message(f"You have entered the **{giveaway}** giveaway! We wish you the best of luck!", ephemeral=True)
@@ -88,12 +90,14 @@ class Gifting(commands.Cog):
                 await interaction.response.send_message("That giveaway already exists! Please choose a different name.",
                     ephemeral=True)
                 return
+            
             # Create a new giveaway.
             cursor.execute("INSERT INTO Ongoing (id, host, users) VALUES (?, ?, ?)", (name, interaction.user.id, ""))
             await interaction.response.send_message(f"The **{name}** giveaway has been started! "
                 + "Please use the `end` action to choose a winner.",
                 ephemeral=True)
             self.logger.info(f"{interaction.user.name} has started the {name} giveaway.")
+
         else:
             # Check if the giveaway exists.
             cursor.execute("SELECT * FROM Ongoing WHERE id = ?", (name,))
@@ -102,11 +106,13 @@ class Gifting(commands.Cog):
                 await interaction.response.send_message("That giveaway does not exist! Make sure you typed the name exactly as announced.",
                     ephemeral=True)
                 return
+            
             # Check if the amount of winners is valid.
             if amount < 1:
                 await interaction.response.send_message("You must choose at least one winner for the giveaway!",
                     ephemeral=True)
                 return
+            
             if amount > len(giveaway_entry[2]):
                 participant_count = len(giveaway_entry[2])
                 await interaction.response.send_message(
@@ -114,6 +120,7 @@ class Gifting(commands.Cog):
                     ephemeral=True
                 )
                 return
+            
             # Choose winner(s), making sure not to pick the same person twice.
             winners = random.sample(giveaway_entry[2].split(), amount)
             # Send a message to the channel congratulating and mentioning the winner(s).
@@ -125,10 +132,12 @@ class Gifting(commands.Cog):
                 host = await self.bot.fetch_user(giveaway_entry[1])
             except discord.NotFound:
                 host = interaction.user
+
             embed.set_author(name=host.display_name, icon_url=host.display_avatar)
             embed.set_thumbnail(url="https://media.tenor.com/3fBEgjA2Y6IAAAAi/giveaway-alert-giveaway.gif")
             embed.add_field(name=f"Winner{'s' if amount > 1 else ''} ({amount} total)", value="\n".join(winner_ids))
             embed.set_footer(text="A notification will be sent. Please contact the host to claim your gift.")
+
             # Attempt to send a message to the chosen winners.
             for winner in winner_ids:
                 winner = await self.bot.fetch_user(winner[2:-1])
@@ -141,13 +150,16 @@ class Gifting(commands.Cog):
                         embed=embed
                     )
                     self.logger.info(f"Sent a message to {winner.name} regarding a giveaway.")
+
             # Send a message to the channel that the giveaway has ended.
             await interaction.response.send_message(f"The results are in for the **{name}** giveaway! Congratulations!",
                 embed=embed)
             self.logger.info(f"{interaction.user.name} has decided for the {name} giveaway.")
+
             # Move the giveaway to Archived from Ongoing.
             cursor.execute("INSERT INTO Archived (id, host, users) VALUES (?, ?, ?)", (name, giveaway_entry[1], giveaway_entry[2]))
             cursor.execute("DELETE FROM Ongoing WHERE id = ?", (name,))
+            
         connection.commit()
 
 

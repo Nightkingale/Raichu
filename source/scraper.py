@@ -29,6 +29,7 @@ class Scraper(commands.Cog):
         embed = discord.Embed(title=title, url=url)
         embed.set_author(name=author_name, url=author_url, icon_url=author_art)
         embed.set_thumbnail(url=art)
+
         if type == "track":
             embed.color = 0xf26f23 # SoundCloud service
             embed.add_field(name="Duration", value=duration, inline=True)
@@ -54,11 +55,13 @@ class Scraper(commands.Cog):
         async with session.get(author_url + "/tracks") as response:
             html = await response.text()
             soup = BeautifulSoup(html, "html.parser")
+
             # Scrapes the author's name, art, and track list.
             author_name = soup.find("meta", {"property": "og:title"})["content"]
             author_art = soup.find("meta", {"property": "og:image"})["content"]
             tracks = soup.find_all("h2", {"itemprop": "name"})
             new_tracks = []
+
             for track in tracks:
                 # Get the track's information.
                 track_url = "https://soundcloud.com" + track.find("a")["href"]
@@ -78,10 +81,12 @@ class Scraper(commands.Cog):
                 track_info = (title, track_url, author_name, author_url, author_art, upload_art,
                     duration, published, buy_link)
                 new_tracks.append(track_info)
+
             # Check if the held data is empty.
             if not last_tracks:
                 last_tracks = [track_info[1] for track_info in new_tracks]
                 return last_tracks
+            
             for track_info in new_tracks:
                 # Compare to see if the exact data is already posted.
                 if track_info[1] not in last_tracks:
@@ -90,6 +95,7 @@ class Scraper(commands.Cog):
                     embed = self.create_embed("track", *track_info)
                     channel = self.bot.get_channel(config["channels"]["#content-updates"])
                     await channel.send(embed=embed)
+
         return last_tracks
 
 
@@ -99,17 +105,21 @@ class Scraper(commands.Cog):
         async with session.get(author_url + "/videos") as response:
             html = await response.text()
             soup = BeautifulSoup(html, "html.parser")
+
             # Grab the JSON data from the page.
             script = soup.find("script", text=re.compile("ytInitialData"))
             json_text = re.search(r"ytInitialData\s*=\s*({.*?});", script.string).group(1)
             data = loads(json_text)
+
             # Grab the list of videos from the scraped JSON data.
             videos = data['contents']['twoColumnBrowseResultsRenderer']['tabs'][1]['tabRenderer'] \
                 ['content']['richGridRenderer']['contents']
+            
             # Scrape the author name and art from the page.
             author_name = soup.find("meta", {"property": "og:title"})["content"]
             author_art = soup.find("meta", {"property": "og:image"})["content"]
             new_videos = []
+
             for video in videos:
                 # Loop through the videos and grab individual data.
                 video = video['richItemRenderer']['content']['videoRenderer']
@@ -127,10 +137,12 @@ class Scraper(commands.Cog):
                 video_info = (video_title, video_url, author_name, author_url, author_art, video_art,
                     video_duration, video_published)
                 new_videos.append(video_info)
+
             # Check if the held data is empty.
             if not last_videos:
                 last_videos = [video_info[1] for video_info in new_videos]
                 return last_videos
+            
             for video_info in new_videos:
                 if video_info[1] not in last_videos:
                     self.logger.info(f"A new YouTube video was scraped called {video_info[0]}.")
@@ -138,6 +150,7 @@ class Scraper(commands.Cog):
                     embed = self.create_embed("video", *video_info)
                     channel = self.bot.get_channel(config["channels"]["#content-updates"])
                     await channel.send(embed=embed)
+
         return last_videos
 
 
@@ -147,17 +160,21 @@ class Scraper(commands.Cog):
         async with session.get(author_url + "/releases") as response:
             html = await response.text()
             soup = BeautifulSoup(html, "html.parser")
+            
             # Grab the JSON data from the page.
             script = soup.find("script", text=re.compile("ytInitialData"))
             json_text = re.search(r"ytInitialData\s*=\s*({.*?});", script.string).group(1)
             data = loads(json_text)
+
             # Grab the list of releases from scraped JSON data.
             releases = data['contents']['twoColumnBrowseResultsRenderer']['tabs'][3]['tabRenderer'] \
                 ['content']['richGridRenderer']['contents']
+            
             # Scrape the author name and art from the page.
             author_name = soup.find("meta", {"property": "og:title"})["content"]
             author_art = soup.find("meta", {"property": "og:image"})["content"]
             new_releases = []
+
             for release in releases:
                 # Loop through the releases and grab individual data.
                 video = release['richItemRenderer']['content']['playlistRenderer']
@@ -176,10 +193,12 @@ class Scraper(commands.Cog):
                 release_info = (release_title, release_url, author_name, author_url, author_art,
                     release_art, track_count, release_published)
                 new_releases.append(release_info)
+
             # Check if the held data is empty.
             if not last_releases:
                 last_releases = [release_info[1] for release_info in new_releases]
                 return last_releases
+            
             for release_info in new_releases:
                 # Compare to see if the exact data already was posted.
                 if release_info[1] not in last_releases:
@@ -188,6 +207,7 @@ class Scraper(commands.Cog):
                     embed = self.create_embed("release", *release_info)
                     channel = self.bot.get_channel(config["channels"]["#content-updates"])
                     await channel.send(embed=embed)
+
             return last_releases
 
 

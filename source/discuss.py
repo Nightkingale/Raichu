@@ -73,6 +73,7 @@ class Discuss(commands.Cog):
         await self.bot.wait_until_ready()
         discussion_starters = discuss["topics"]
         channel = self.bot.get_channel(config["channels"]["#chat-hangout"])
+
         # The prompt for stating a fact about a discussion starter.
         fact_prompt = (
             f"Please state an interesting fact about {random.choice(discussion_starters)}. "
@@ -80,6 +81,7 @@ class Discuss(commands.Cog):
             f"Please make sure you give decent information. Two sentences is great."
             f"Just state the fact by itself, nothing such as 'Sure!'"
         )
+
         # The prompt for asking a question about a discussion starter.
         question_prompt = (
             f"Please ask a question about {random.choice(discussion_starters)}. "
@@ -90,10 +92,12 @@ class Discuss(commands.Cog):
             f"Just state the question by itself, nothing such as 'Sure!'"
         )
         prompt = random.choice([fact_prompt, question_prompt])
+
         # If the channel isn't in the conversations dictionary, add it.
         if channel.id not in self.conversations:
             self.conversations[channel.id] = []
         conversation = self.conversations[channel.id]
+
         # Add the prompt to the conversation.
         conversation.append({
             "role": "system",
@@ -116,6 +120,7 @@ class Discuss(commands.Cog):
             bot_name = discord.utils.get(message.guild.members, id=self.bot.user.id).display_name
             user_name = message.author.display_name
             server_name = message.guild.name
+
             # Create the prompt using the above variables.
             prompt = (
                 f"You are a friendly chat bot named {bot_name}. You are designed to assist users on a "
@@ -125,6 +130,7 @@ class Discuss(commands.Cog):
                 f"conversations with users. If possible, keep responses short and to the point, a few "
                 f"sentences at most."
             )
+
             # If the channel isn't in the conversations dictionary, add it.
             if message.channel.id not in self.conversations:
                 self.conversations[message.channel.id] = []
@@ -137,10 +143,12 @@ class Discuss(commands.Cog):
                 "role": "system",
                 "content": prompt
             })
+
             # If possible, change pings to be display names in the message.
             for mention in message.mentions:
                 message.content = message.content.replace(mention.mention, mention.display_name)
             request = message.content
+
             # Initialize request with any text content in the message.
             request = [{"type": "text", "text": message.content}]
             # Add each attachment URL as an image_url entry.
@@ -150,11 +158,13 @@ class Discuss(commands.Cog):
                         "type": "image_url",
                         "image_url": {"url": attachment.url}
                     })
+
             # Add the request to the conversation.
             conversation.append({
                 "role": "user",
                 "content": request
             })
+            
             # Make sure the request isn't empty.
             if request != "":
                 async with message.channel.typing():
