@@ -145,10 +145,11 @@ class Discuss(commands.Cog):
             request = [{"type": "text", "text": message.content}]
             # Add each attachment URL as an image_url entry.
             for attachment in message.attachments:
-                request.append({
-                    "type": "image_url",
-                    "image_url": {"url": attachment.url}
-                })
+                if attachment.content_type and attachment.content_type.startswith("image"):
+                    request.append({
+                        "type": "image_url",
+                        "image_url": {"url": attachment.url}
+                    })
             # Add the request to the conversation.
             conversation.append({
                 "role": "user",
