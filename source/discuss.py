@@ -141,17 +141,14 @@ class Discuss(commands.Cog):
             for mention in message.mentions:
                 message.content = message.content.replace(mention.mention, mention.display_name)
             request = message.content
-            # Check for attachments in the message.
-            attachments = message.attachments
-            if attachments:
-                # Assume the first attachment is the one we want to send.
-                attachment_url = attachments[0].url
-                request = [
-                    {"type": "text", "text": message.content},
-                    {"type": "image_url", "image_url": {"url": attachment_url}},
-                ]
-            else:
-                request = message.content
+            # Initialize request with any text content in the message.
+            request = [{"type": "text", "text": message.content}]
+            # Add each attachment URL as an image_url entry.
+            for attachment in message.attachments:
+                request.append({
+                    "type": "image_url",
+                    "image_url": {"url": attachment.url}
+                })
             # Add the request to the conversation.
             conversation.append({
                 "role": "user",
