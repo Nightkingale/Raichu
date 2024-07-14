@@ -26,7 +26,7 @@ class Updater(commands.Cog):
                     if os.name == "posix":
                         # Run the updater service in Area Zero. If this isn't Area Zero, the service won't exist.
                         self.logger.info("A new commit was detected. An automatic update will be performed.")
-                        os.system("sudo systemctl start raichu_update")
+                        os.system("sudo systemctl start raichu_update.service")
 
 
 async def setup(bot: commands.Bot):
