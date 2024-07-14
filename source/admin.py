@@ -101,7 +101,7 @@ class Admin(commands.Cog):
             self.logger.info(f"{ctx.author.name} has requested an update of the bot.")
             if os.name == "posix":
                 # Run the updater service in Area Zero.
-                os.system("sudo systemctl start raichu_update")
+                os.system("sudo systemctl start raichu_update.service")
             else:
                 await self.bot.close()
         else:
@@ -109,7 +109,7 @@ class Admin(commands.Cog):
             self.logger.info(f"{ctx.author.name} has requested a reboot of the bot.")
             if os.name == "posix":
                 # Restart Raichu's service in Area Zero.
-                os.system("sudo systemctl restart raichu")
+                os.system("sudo systemctl restart raichu.service")
             else:
                 await self.bot.close()
 

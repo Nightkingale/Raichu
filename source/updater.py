@@ -21,7 +21,7 @@ class Updater(commands.Cog):
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
         if message.channel.id != config["channels"]["#github-logs"]:
-            return # Not the GitHub logs channel.
+            return  # Not the GitHub logs channel.
 
         for embed in message.embeds:
             if "Raichu" in embed.title and "new commit" in embed.title:
