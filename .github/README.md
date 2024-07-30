@@ -1,12 +1,24 @@
 # Raichu
+
 A utility Discord bot for the Nightkingale Studios server.
 
-Raichu is a simple bot that is currently being developed and expanded on. It utilizes Discord's new feature, slash commands, opposed to more traditional commands. Its features are specifically built to fit the means of the Nightkingale Studios server.
+<p align="left">
+  <a href="https://discord.nightkingale.com/">
+    <img src="https://img.shields.io/badge/Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Join us!" width="10%" height="10%">
+  </a>
+  <a href="https://donate.nightkingale.com/">
+    <img src="https://img.shields.io/badge/PayPal-00457C?style=for-the-badge&logo=paypal&logoColor=white" alt="Thank you!" width="10%" height="10%">
+  </a>
+  <a href="https://nightkingale.com/">
+    <img src="https://img.shields.io/badge/website-000000?style=for-the-badge&logo=About.me&logoColor=white" alt="Visit us!" width="10%" height="10%">
+  </a>
+</p>
 
-The bot itself is programmed using the Discord.py library and is primarily run on its own virtual private server (called "Area Zero"). While recent updates ease deployment on other servers, some customization may be required.
+Raichu is a simple Discord bot built to fit the means of the Nightkingale Studios server, utilizing new features such as slash commands.
 
 ## Usage
 If you would like to see Raichu in action, click [here](https://discord.nightkingale.com) to join our Discord server!
+
 * When the bot is invited to a server with the correct permissions, typing `/` in the message box will show a list of commands one can send.
 * Each command has a different purpose, such as sending a message or acting as a chatbot.
 
