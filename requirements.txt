@@ -2,4 +2,4 @@ aiohttp==3.11.11
 beautifulsoup4==4.12.3
 discord.py==2.4.0
 pymongo==4.10.1
-tzdata==2024.2
+tzdata==2025.1
