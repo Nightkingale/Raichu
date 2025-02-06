@@ -1,4 +1,4 @@
-aiohttp==3.11.11
+aiohttp==3.11.12
 beautifulsoup4==4.13.3
 discord.py==2.4.0
 pymongo==10.10.10.10
