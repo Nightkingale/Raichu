@@ -131,9 +131,13 @@ class Scraper(commands.Cog):
                 async with session.get(video_url) as response:
                     html = await response.text()
                     soup = BeautifulSoup(html, "html.parser")
-                    video_published = soup.find("meta", {"itemprop": "datePublished"})
-                    video_published = datetime.datetime.strptime(video_published["content"], "%Y-%m-%dT%H:%M:%S%z")
-                    video_published = video_published.strftime("%B %d, %Y")
+                    video_published_tag = soup.find("meta", {"itemprop": "datePublished"})
+                    if video_published_tag and video_published_tag.get("content"):
+                        video_published = datetime.datetime.strptime(video_published_tag["content"], \
+                            "%Y-%m-%dT%H:%M:%S%z")
+                        video_published = video_published.strftime("%B %d, %Y")
+                    else:
+                        video_published = "Unknown"
                 video_info = (video_title, video_url, author_name, author_url, author_art, video_art,
                     video_duration, video_published)
                 new_videos.append(video_info)
