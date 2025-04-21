@@ -191,9 +191,13 @@ class Scraper(commands.Cog):
                 async with session.get(release_url) as response:
                     html = await response.text()
                     soup = BeautifulSoup(html, "html.parser")
-                    release_published = soup.find("meta", {"itemprop": "datePublished"})
-                    release_published = datetime.datetime.strptime(release_published["content"], "%Y-%m-%dT%H:%M:%S%z")
-                    release_published = release_published.strftime("%B %d, %Y")
+                    release_published_tag = soup.find("meta", {"itemprop": "datePublished"})
+                    if release_published_tag and release_published_tag.get("content"):
+                        release_published = datetime.datetime.strptime(release_published_tag["content"], \
+                            "%Y-%m-%dT%H:%M:%S%z")
+                        release_published = release_published.strftime("%B %d, %Y")
+                    else:
+                        release_published = "Unknown"
                 release_info = (release_title, release_url, author_name, author_url, author_art,
                     release_art, track_count, release_published)
                 new_releases.append(release_info)
