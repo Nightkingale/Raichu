@@ -66,11 +66,15 @@ class Discuss(commands.Cog):
                         response.raise_for_status()
 
 
-    # Every twelve hours, a prompt will be sent to the main discussion channel.
+    # Runs daily at 12:00 UTC and will post a prompt to the main discussion channel on Wednesdays.
     # Currently, it is either a fact or a question about a conversation starter.
     @tasks.loop(time=datetime.time(hour=12, tzinfo=utc))
     async def discussion_starter(self):
         await self.bot.wait_until_ready()
+        # Wednesday = 2, if not Wednesday, don't proceed.
+        if datetime.datetime.now(tz=utc).weekday() != 2:
+            return
+        
         discussion_starters = discuss["topics"]
         channel = self.bot.get_channel(config["channels"]["#chat-hangout"])
 
