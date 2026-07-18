@@ -11,7 +11,7 @@ from pathlib import Path
 from logger import create_logger
 
 
-secret = loads(Path("config/secret.json").read_text())
+secret = loads(Path("data/config/secret.json").read_text())
 
 
 # Check if the database directory exists, if not, create it.

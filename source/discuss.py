@@ -16,7 +16,7 @@ utc = datetime.timezone.utc
 
 config = loads(Path("config/config.json").read_text())
 discuss = loads(Path("config/discuss.json").read_text())
-secret = loads(Path("config/secret.json").read_text())
+secret = loads(Path("data/config/secret.json").read_text())
 
 
 class Discuss(commands.Cog):
