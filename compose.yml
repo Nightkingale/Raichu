@@ -1,0 +1,16 @@
+services:
+  raichu:
+    image: ghcr.io/nightkingale/raichu:latest
+    pull_policy: always
+    container_name: raichu
+    user: "1002:1002"
+    restart: unless-stopped
+    working_dir: /app
+    volumes:
+      - ./data/config:/data/config
+      - ./data/database:/data/database
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
