@@ -1,0 +1,11 @@
+# Optimization
+.git
+venv
+__pycache__/
+*.pyc
+
+# Local Data
+config/
+database/
+*.sqlite
+*.log
