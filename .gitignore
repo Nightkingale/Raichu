@@ -3,4 +3,4 @@ __pycache__/
 
 # Local Data
 database/
-secret.json
+secrets.json

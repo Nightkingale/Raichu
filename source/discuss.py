@@ -16,7 +16,7 @@ utc = datetime.timezone.utc
 
 config = loads(Path("config/config.json").read_text())
 discuss = loads(Path("config/discuss.json").read_text())
-secret = loads(Path("data/config/secret.json").read_text())
+secrets = loads(Path("data/config/secrets.json").read_text())
 
 
 class Discuss(commands.Cog):
@@ -34,7 +34,7 @@ class Discuss(commands.Cog):
         # talk to the openai endpoint and make a request
         # https://beta.openai.com/docs/api-reference/completions/create
         headers = {
-            "Authorization": f"Bearer {secret['CHATGPT_API_KEY']}",
+            "Authorization": f"Bearer {secrets['CHATGPT_API_KEY']}",
             "Content-Type": "application/json",
         }
         data = {
