@@ -14,9 +14,9 @@ from logger import create_logger
 utc = datetime.timezone.utc
 
 
-config = loads(Path("config/config.json").read_text())
-discuss = loads(Path("config/discuss.json").read_text())
-secrets = loads(Path("data/config/secrets.json").read_text())
+config = loads(Path("/data/config/config.json").read_text())
+discuss = loads(Path("/data/config/discuss.json").read_text())
+secrets = loads(Path("/data/config/secrets.json").read_text())
 
 
 class Discuss(commands.Cog):

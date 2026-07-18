@@ -8,7 +8,7 @@ from pathlib import Path
 from logger import create_logger
 
 
-config = loads(Path("config/config.json").read_text())
+config = loads(Path("/data/config/config.json").read_text())
 
 
 class Updater(commands.Cog):
