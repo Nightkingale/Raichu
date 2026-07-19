@@ -4,8 +4,13 @@ venv
 __pycache__/
 *.pyc
 
-# Local Data
-config/
-database/
+# Databases
 *.sqlite
+
+# Housekeeping
+.git
+.gitignore
+.dockerignore
+.DS_Store
+Thumbs.db
 *.log

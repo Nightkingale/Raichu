@@ -1,3 +1,5 @@
+name: raichu
+
 services:
   raichu:
     image: ghcr.io/nightkingale/raichu:latest
