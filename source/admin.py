@@ -94,20 +94,6 @@ class Admin(commands.Cog):
 
     @commands.command(hidden=True)
     @commands.is_owner()
-    async def reboot(self, ctx):
-        "Reboots the bot and checks for updates."
-        await ctx.reply("The bot will now terminate and update.")
-        self.logger.info(f"{ctx.author.name} has requested an update of the bot.")
-        if os.name == "posix":
-            # Run the updater service in Bell Tower.
-            proc = await asyncio.create_subprocess_exec(
-                "sudo", "systemctl", "start", "raichu-update.service")
-            await proc.wait()
-        else:
-            await self.bot.close()
-
-    @commands.command(hidden=True)
-    @commands.is_owner()
     async def sync(self, ctx):
         "Syncs the bot's commands with Discord."
         await self.bot.tree.sync()
