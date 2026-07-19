@@ -1,5 +1,4 @@
 import discord
-import os
 import random
 import sqlite3
 
@@ -15,11 +14,12 @@ secrets = loads(Path("/data/config/secrets.json").read_text())
 
 
 # Check if the database directory exists, if not, create it.
-if not os.path.exists("database"):
-    os.makedirs("database")
+DATABASE_DIR = Path("/data/database")
+DATABASE_DIR.mkdir(parents=True, exist_ok=True)
+
 
 # Connect to the database now that the directory exists.
-connection = sqlite3.connect("database/gifting.sqlite")
+connection = sqlite3.connect(DATABASE_DIR / "gifting.sqlite")
 cursor = connection.cursor()
 
 
