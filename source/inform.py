@@ -1,9 +1,8 @@
 import discord
-import subprocess
+import os
 
 from discord import app_commands
 from discord.ext import commands
-from subprocess import check_output
 
 
 class Inform(commands.Cog):
@@ -21,23 +20,15 @@ class Inform(commands.Cog):
         embed.set_thumbnail(url="https://cdn.discordapp.com/avatars/"
             + "983846918683770941/7f2ad37cee31d9599ae51a1d3082fb56.png?size=256")
         
-        # Adds the commit hash to the embed.
-        try:
-            # Fetches the commit hash from the git repository.
-            commit = check_output(
-                ["git", "rev-parse", "HEAD"]).decode("ascii")[:-1]
-            embed.add_field(name="Commit", value="`" + commit[0:7] + "`", inline=True)
-        except subprocess.CalledProcessError:
-            pass
+        # Fetch commit and branch information from image if available.
+        commit = os.getenv("GIT_COMMIT", "unknown")
+        branch = os.getenv("GIT_BRANCH", "unknown")
 
-        # Adds the branch name to the embed.
-        try:
-            # Fetches the branch name from the git repository.
-            branch = check_output(
-                ["git", "rev-parse", "--abbrev-ref", "HEAD"]).decode()[:-1]
-            embed.add_field(name="Branch", value="`" + branch + "`", inline=True)
-        except subprocess.CalledProcessError:
-            pass
+        if commit != "unknown":
+            embed.add_field(name="Commit", value=f"`{commit[:7]}`", inline=True)
+
+        if branch != "unknown":
+            embed.add_field(name="Branch", value=f"`{branch}`", inline=True)
         
         # Adds a footer to the embed and sends the embed.
         embed.set_footer(text="Check out my source code on GitHub!")
@@ -49,7 +40,7 @@ class Inform(commands.Cog):
     async def invite(self, interaction: discord.Interaction):
         "Sends a link to an affiliated server."
         await interaction.response.send_message("Share this link to invite people! "
-            + f"https://discord.gg/mYjeaZQ")
+            + "https://discord.gg/mYjeaZQ")
         
 
     @app_commands.command()
