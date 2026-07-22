@@ -1,3 +1,4 @@
+import datetime
 import discord
 import os
 
@@ -22,6 +23,7 @@ class Manager(commands.Bot):
             activity=discord.Activity(name="Nincord", type=discord.ActivityType.watching),
             status=discord.Status.online
         )
+        self.start_time = datetime.datetime.now(datetime.UTC)
         self.logger = create_logger("Main")
 
 

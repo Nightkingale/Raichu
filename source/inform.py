@@ -1,6 +1,7 @@
 import discord
 import os
 
+from datetime import datetime
 from discord import app_commands
 from discord.ext import commands
 
@@ -56,7 +57,9 @@ class Inform(commands.Cog):
     @app_commands.command()
     async def uptime(self, interaction: discord.Interaction):
         "Shows how long the bot has been running."
-        uptime = self.bot.uptime
+        now = datetime.datetime.now(datetime.UTC)
+        uptime = now - self.bot.start_time
+
         total_seconds = int(uptime.total_seconds())
         days, remainder = divmod(total_seconds, 86400)
         hours, remainder = divmod(remainder, 3600)
