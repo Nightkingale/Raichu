@@ -158,62 +158,6 @@ class Scraper(commands.Cog):
         return last_videos
 
 
-    # Separate function for checking new YouTube Music releases.
-    async def check_new_youtube_music_releases(self, session, last_releases):
-        author_url = scraper["youtube_link"]
-        async with session.get(author_url + "/releases") as response:
-            html = await response.text()
-            soup = BeautifulSoup(html, "html.parser")
-            
-            # Grab the JSON data from the page.
-            script = soup.find("script", text=re.compile("ytInitialData"))
-            json_text = re.search(r"ytInitialData\s*=\s*({.*?});", script.string).group(1)
-            data = loads(json_text)
-
-            # Grab the list of releases from scraped JSON data.
-            releases = data['contents']['twoColumnBrowseResultsRenderer']['tabs'][3]['tabRenderer'] \
-                ['content']['richGridRenderer']['contents']
-            
-            # Scrape the author name and art from the page.
-            author_name = soup.find("meta", {"property": "og:title"})["content"]
-            author_art = soup.find("meta", {"property": "og:image"})["content"]
-            new_releases = []
-
-            for release in releases:
-                # Loop through the releases and grab individual data.
-                video = release['richItemRenderer']['content']['playlistRenderer']
-                release_title = video['title']['simpleText']
-                release_art = video['thumbnails'][0]['thumbnails'][0]['url']
-                track_count = video['videoCount']
-                release_url = "https://www.youtube.com/watch?v=" + video['navigationEndpoint'] \
-                    ['watchEndpoint']['videoId'] + "&list=" + video['navigationEndpoint'] \
-                    ['watchEndpoint']['playlistId']
-                async with session.get(release_url) as response:
-                    html = await response.text()
-                    soup = BeautifulSoup(html, "html.parser")
-                    release_published_tag = soup.find("meta", {"itemprop": "datePublished"})
-                    if release_published_tag and release_published_tag.get("content"):
-                        release_published = datetime.datetime.strptime(release_published_tag["content"], \
-                            "%Y-%m-%dT%H:%M:%S%z")
-                        release_published = release_published.strftime("%B %d, %Y")
-                    else:
-                        release_published = "Unknown"
-                release_info = (release_title, release_url, author_name, author_url, author_art,
-                    release_art, track_count, release_published)
-                new_releases.append(release_info)
-
-            # Check if the held data is empty.
-            if not last_releases:
-                last_releases = [release_info[1] for release_info in new_releases]
-                return last_releases
-            
-            for release_info in new_releases:
-                # Compare to see if the exact data already was posted.
-                if release_info[1] not in last_releases:
-                    self.logger.info(f"A new YouTube Music release was scraped called {release_info[0]}")
-                    last_releases.append(release_info[1])
-                    embed = self.create_embed("release", *release_info)
-                    channel = self.bot.get_channel(config["channels"]["#content-updates"])
                     await channel.send(embed=embed)
 
             return last_releases
@@ -225,9 +169,8 @@ class Scraper(commands.Cog):
         async with aiohttp.ClientSession() as session:
             try:
                 self.logger.info("A web scraping session has started.")
-                self.last_tracks = await self.check_new_soundcloud_tracks(session, self.last_tracks)
                 self.last_videos = await self.check_new_youtube_videos(session, self.last_videos)
-                self.last_releases = await self.check_new_youtube_music_releases(session, self.last_releases)
+                self.last_tracks = await self.check_new_soundcloud_tracks(session, self.last_tracks)
             except Exception as error:
                 self.logger.error(f"An exception has been caught!", exc_info=error)
 
