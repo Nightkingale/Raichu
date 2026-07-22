@@ -51,7 +51,30 @@ class Inform(commands.Cog):
         embed.set_footer(text="Check out my source code on GitHub!")
 
         await interaction.response.send_message("Here's some invite links to share!", embed=embed)
+
+    
+    @app_commands.command()
+    async def uptime(self, interaction: discord.Interaction):
+        "Shows how long the bot has been running."
+        uptime = self.bot.uptime
+        total_seconds = int(uptime.total_seconds())
+        days, remainder = divmod(total_seconds, 86400)
+        hours, remainder = divmod(remainder, 3600)
+        minutes, seconds = divmod(remainder, 60)
+
+        embed = discord.Embed(title="Nightkingale Services",
+            url="https://status.nightkingale.com",
+            description="You can view the health and status of all Nightkingale services on this page",
+            colour=0x93bd20)
+        embed.set_author(name="Nightkingale", url="https://nightkingale.com",
+            icon_url="https://avatars.githubusercontent.com/u/63483138?v=4")
+        embed.set_thumbnail(url="https://avatars.githubusercontent.com/u/63483138?v=4")
+        embed.set_footer(text="This website is powered by Uptime Kuma, through Bell Tower.",
+            icon_url="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRRQE8_ux9Cp6xz35xzj4U37MmBzgy9b7gXOv-DchbX9Ll25Yf900qT3sK2&s=10")
         
+        await interaction.response.send_message(f"I've been running for {days} days, {hours} hours, {minutes} minutes, and "
+            f"{seconds} seconds, but you can view more information on our status page!", embed=embed)
+
 
     @app_commands.command()
     async def ping(self, interaction: discord.Interaction):
