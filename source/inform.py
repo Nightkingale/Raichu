@@ -39,8 +39,18 @@ class Inform(commands.Cog):
     @app_commands.command()
     async def invite(self, interaction: discord.Interaction):
         "Sends a link to an affiliated server."
-        await interaction.response.send_message("Share this link to invite people! "
-            + "https://discord.gg/mYjeaZQ")
+        embed = discord.Embed(title="Nightkingale Studios",
+            url="https://discord.nightkingale.com",
+            description="The small, cozy home for development, gaming, music, and a whole lot of Wii U talk!",
+            colour=0xffff00)
+        embed.set_author(name="Nightkingale", url="https://nightkingale.com",
+            icon_url="https://avatars.githubusercontent.com/u/63483138?v=4")
+        embed.add_field(name="Official Link", value="https://discord.nightkingale.com", inline=True)
+        embed.add_field(name="Direct Link", value="https://discord.gg/mYjeaZQ", inline=True)
+        embed.set_thumbnail(url="https://cdn.discordapp.com/icons/450846070025748480/4dbc6b6ffa38503a1e53b7c87c38b006.webp?size=1280")
+        embed.set_footer(text="Check out my source code on GitHub!")
+
+        await interaction.response.send_message("Here's some invite links to share!", embed=embed)
         
 
     @app_commands.command()
