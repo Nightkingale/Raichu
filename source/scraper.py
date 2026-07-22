@@ -1,9 +1,8 @@
 import aiohttp
 import datetime
 import discord
-import re
+import feedparser
 
-from bs4 import BeautifulSoup
 from discord.ext import commands, tasks
 from json import loads
 from pathlib import Path
@@ -19,160 +18,220 @@ class Scraper(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.logger = create_logger(self.__class__.__name__)
-        self.last_tracks, self.last_videos, self.last_releases = [], [], []
+        self.last_videos, self.last_tracks = [], []
         self.scraper.start()
 
 
+    # Makes a pretty embed for the content to send announcement.
     def create_embed(self, type, title, url, author_name, author_url, author_art,
         art, duration, published, buy=None):
-        # Makes a pretty embed for the content to send announcement.
         embed = discord.Embed(title=title, url=url)
         embed.set_author(name=author_name, url=author_url, icon_url=author_art)
         embed.set_thumbnail(url=art)
 
-        if type == "track":
-            embed.color = 0xf26f23 # SoundCloud service
+        if type == "video": # YouTube RSS feed
+            embed.color = 0xc4302b
+            if duration:
+                embed.add_field(name="Duration", value=duration, inline=True)
+            embed.add_field(name="Published", value=published, inline=True)
+            embed.set_footer(text="This was obtained through a YouTube RSS feed.")
+        elif type == "track": # SoundCloud RSS feed
+            embed.color = 0xf26f23
             embed.add_field(name="Duration", value=duration, inline=True)
             embed.add_field(name="Published", value=published, inline=True)
             embed.add_field(name="Purchase Link", value=buy, inline=False) if buy else None
-            embed.set_footer(text="This was obtained through web scraping SoundCloud.")
-        elif type == "video":
-            embed.color = 0xc4302b # YouTube service
-            embed.add_field(name="Duration", value=duration, inline=True)
-            embed.add_field(name="Published", value=published, inline=True)
-            embed.set_footer(text="This was obtained through web scraping YouTube.")
-        elif type == "release":
-            embed.color = 0xc4302b # YouTube Music service
-            embed.add_field(name="Tracks", value=duration, inline=True)
-            embed.add_field(name="Published", value=published, inline=True)
-            embed.set_footer(text="This was obtained through web scraping YouTube Music.")
+            embed.set_footer(text="This was obtained through a SoundCloud RSS feed.")
         return embed
 
 
-    # Separate function for checking new SoundCloud tracks.
-    async def check_new_soundcloud_tracks(self, session, last_tracks):
-        author_url = scraper["soundcloud_link"]
-        async with session.get(author_url + "/tracks") as response:
-            html = await response.text()
-            soup = BeautifulSoup(html, "html.parser")
-
-            # Scrapes the author's name, art, and track list.
-            author_name = soup.find("meta", {"property": "og:title"})["content"]
-            author_art = soup.find("meta", {"property": "og:image"})["content"]
-            tracks = soup.find_all("h2", {"itemprop": "name"})
-            new_tracks = []
-
-            for track in tracks:
-                # Get the track's information.
-                track_url = "https://soundcloud.com" + track.find("a")["href"]
-                async with session.get(track_url) as response:
-                    html = await response.text()
-                    soup = BeautifulSoup(html, "html.parser")
-                    title = soup.find("meta", {"property": "og:title"})["content"]
-                    duration = soup.find("meta", {"itemprop": "duration"})["content"]
-                    duration = duration[2:].lower().replace("h", ":").replace("m", ":").replace("s", "")
-                    published = soup.find("time")
-                    published = datetime.datetime.strptime(published.text.strip(), "%Y-%m-%dT%H:%M:%SZ")
-                    published = published.strftime("%B %d, %Y")
-                    buy_link = soup.find("footer").find("a")["href"] if soup.find("footer").find("a") else None
-                    if buy_link and "http" not in buy_link:
-                        buy_link = None # No valid link found.
-                    upload_art = soup.find("meta", {"property": "og:image"})["content"]
-                track_info = (title, track_url, author_name, author_url, author_art, upload_art,
-                    duration, published, buy_link)
-                new_tracks.append(track_info)
-
-            # Check if the held data is empty.
-            if not last_tracks:
-                last_tracks = [track_info[1] for track_info in new_tracks]
-                return last_tracks
-            
-            for track_info in new_tracks:
-                # Compare to see if the exact data is already posted.
-                if track_info[1] not in last_tracks:
-                    self.logger.info(f"A new SoundCloud track was scraped called {track_info[0]}.")
-                    last_tracks.append(track_info[1])
-                    embed = self.create_embed("track", *track_info)
-                    channel = self.bot.get_channel(config["channels"]["#content-updates"])
-                    await channel.send(embed=embed)
-
-        return last_tracks
+    # Fetches the text content from a given URL.
+    async def get_text(self, session, url):
+        async with session.get(url) as response:
+            response.raise_for_status()
+            return await response.text()
 
 
-    # Separate function for checking new YouTube videos.
+    # YouTube RSS feed checking function.
     async def check_new_youtube_videos(self, session, last_videos):
+        channel_id = scraper["youtube_channel_id"]
+        feed_url = f"https://www.youtube.com/feeds/videos.xml?channel_id={channel_id}"
+        feed_text = await self.get_text(session, feed_url)
+        feed = feedparser.parse(feed_text)
+
+        if not feed.entries:
+            # Don't bother processing if there are no entries in the feed.
+            self.logger.warning("No YouTube RSS entries were found.")
+            return last_videos
+
+        author_name = feed.feed.get("title", "YouTube")
         author_url = scraper["youtube_link"]
-        async with session.get(author_url + "/videos") as response:
-            html = await response.text()
-            soup = BeautifulSoup(html, "html.parser")
+        author_art = scraper.get("youtube_author_art") or "https://www.youtube.com/s/desktop/6562a175/img/favicon_144x144.png"
 
-            # Grab the JSON data from the page.
-            script = soup.find("script", text=re.compile("ytInitialData"))
-            json_text = re.search(r"ytInitialData\s*=\s*({.*?});", script.string).group(1)
-            data = loads(json_text)
+        new_videos = [] # List to hold new video information.
 
-            # Grab the list of videos from the scraped JSON data.
-            videos = data['contents']['twoColumnBrowseResultsRenderer']['tabs'][1]['tabRenderer'] \
-                ['content']['richGridRenderer']['contents']
-            
-            # Scrape the author name and art from the page.
-            author_name = soup.find("meta", {"property": "og:title"})["content"]
-            author_art = soup.find("meta", {"property": "og:image"})["content"]
-            new_videos = []
+        for entry in feed.entries: # Loop through each entry in the YouTube RSS feed.
+            video_title = entry.get("title", "Untitled video")
+            video_url = entry.get("link")
+            video_id = entry.get("yt_videoid")
 
-            for video in videos:
-                # Loop through the videos and grab individual data.
-                video = video['richItemRenderer']['content']['videoRenderer']
-                video_title = video['title']['runs'][0]['text']
-                video_art = video['thumbnail']['thumbnails'][0]['url']
-                video_url = "https://www.youtube.com/watch?v=" + video['navigationEndpoint'] \
-                    ['watchEndpoint']['videoId']
-                video_duration = video['lengthText']['simpleText']
-                async with session.get(video_url) as response:
-                    html = await response.text()
-                    soup = BeautifulSoup(html, "html.parser")
-                    video_published_tag = soup.find("meta", {"itemprop": "datePublished"})
-                    if video_published_tag and video_published_tag.get("content"):
-                        video_published = datetime.datetime.strptime(video_published_tag["content"], \
-                            "%Y-%m-%dT%H:%M:%S%z")
-                        video_published = video_published.strftime("%B %d, %Y")
-                    else:
-                        video_published = "Unknown"
-                video_info = (video_title, video_url, author_name, author_url, author_art, video_art,
-                    video_duration, video_published)
-                new_videos.append(video_info)
+            if not video_url or not video_id:
+                continue
 
-            # Check if the held data is empty.
-            if not last_videos:
-                last_videos = [video_info[1] for video_info in new_videos]
-                return last_videos
-            
-            for video_info in new_videos:
-                if video_info[1] not in last_videos:
-                    self.logger.info(f"A new YouTube video was scraped called {video_info[0]}.")
-                    last_videos.append(video_info[1])
-                    embed = self.create_embed("video", *video_info)
-                    channel = self.bot.get_channel(config["channels"]["#content-updates"])
+            media_thumbnail = None
+
+            # We're going to prefer the canonical media_group thumbnail if it exists.
+            media_group = entry.get("media_group")
+            if isinstance(media_group, list) and media_group:
+                thumbnails = media_group[0].get("media_thumbnail")
+                if thumbnails:
+                    media_thumbnail = thumbnails[0].get("url")
+
+            if not media_thumbnail:
+                # If we made it here, we'll have to use what we can for the thumbnail.
+                media_thumbnail = f"https://i.ytimg.com/vi/{video_id}/hqdefault.jpg"
+
+            published_struct = entry.get("published_parsed")
+            if published_struct:
+                # Convert the published_struct to a datetime object and format it as "Month Day, Year".
+                video_published = datetime.datetime(*published_struct[:6]).strftime("%B %d, %Y")
+            else:
+                video_published = "Unknown"
+
+            video_info = (
+                video_title,
+                video_url,
+                author_name,
+                author_url,
+                author_art,
+                media_thumbnail,
+                None,
+                video_published,
+            )
+            new_videos.append(video_info)
+
+        if not last_videos:
+            # If last_videos is empty, this should be the first run.
+            return [video_info[1] for video_info in new_videos]
+
+        for video_info in new_videos:
+            if video_info[1] not in last_videos:
+                self.logger.info(f"A new YouTube video was found via RSS called {video_info[0]}.")
+                last_videos.append(video_info[1])
+                embed = self.create_embed("video", *video_info)
+                channel = self.bot.get_channel(config["channels"]["#content-updates"])
+                if channel:
                     await channel.send(embed=embed)
 
         return last_videos
 
 
+    # SoundCloud RSS feed checking function.
+    async def check_new_soundcloud_tracks(self, session, last_tracks):
+        soundcloud_id = scraper.get("soundcloud_channel_id")
+        if not soundcloud_id:
+            # The config is most likely missing the SoundCloud channel ID.
+            self.logger.warning("soundcloud_channel_id is missing from scraper.json.")
+            return last_tracks
+
+        feed_url = f"https://feeds.soundcloud.com/users/soundcloud:users:{soundcloud_id}/sounds.rss"
+        feed_text = await self.get_text(session, feed_url)
+        feed = feedparser.parse(feed_text)
+
+        if not feed.entries:
+            # Don't bother processing if there are no entries in the feed.
+            self.logger.warning("No SoundCloud RSS entries were found.")
+            return last_tracks
+
+        author_name = feed.feed.get("title", "SoundCloud")
+        author_url = scraper.get("soundcloud_link", "https://soundcloud.com")
+
+        author_art = scraper.get("soundcloud_author_art")
+        if not author_art:
+            feed_image = feed.feed.get("image")
+            if feed_image:
+                author_art = feed_image.get("href") or feed_image.get("url")
+        if not author_art:
+            author_art = "https://a-v2.sndcdn.com/assets/images/sc-icons/favicon-2cadd14bdb.ico"
+
+        new_tracks = [] # List to hold new track information.
+
+        for entry in feed.entries: # Loop through each entry in the SoundCloud RSS feed.
+            track_title = entry.get("title", "Untitled track")
+            track_url = entry.get("link")
+            if not track_url:
+                continue
+
+            track_art = None
+            entry_image = entry.get("image")
+            if entry_image:
+                track_art = entry_image.get("href") or entry_image.get("url")
+
+            if not track_art:
+                media_thumbnail = entry.get("media_thumbnail")
+                if isinstance(media_thumbnail, list) and media_thumbnail:
+                    track_art = media_thumbnail[0].get("url")
+
+            if not track_art:
+                track_art = author_art
+
+            track_duration = entry.get("itunes_duration", "Unknown")
+
+            published_struct = entry.get("published_parsed")
+            if published_struct:
+                # Convert the published_struct to a datetime object and format it as "Month Day, Year".
+                track_published = datetime.datetime(*published_struct[:6]).strftime("%B %d, %Y")
+            else:
+                track_published = "Unknown"
+
+            track_info = (
+                track_title,
+                track_url,
+                author_name,
+                author_url,
+                author_art,
+                track_art,
+                track_duration,
+                track_published,
+                None,
+            )
+            new_tracks.append(track_info)
+
+        if not new_tracks:
+            # If there are no new tracks, return the last_tracks list as is.
+            return last_tracks
+
+        channel = self.bot.get_channel(config["channels"]["#content-updates"])
+
+        if not last_tracks:
+            # If last_tracks is empty, this should be the first run.
+            return [track_info[1] for track_info in new_tracks]
+
+        for track_info in new_tracks:
+            if track_info[1] not in last_tracks:
+                self.logger.info(f"A new SoundCloud track was found via RSS called {track_info[0]}.")
+                last_tracks.append(track_info[1])
+                if channel:
+                    embed = self.create_embed("track", *track_info)
                     await channel.send(embed=embed)
 
-            return last_releases
+        return last_tracks
+        
 
-
-    # Main function for the on_ready event
+    # Main function for the on_ready event.
     @tasks.loop(minutes=5)
     async def scraper(self):
         async with aiohttp.ClientSession() as session:
             try:
-                self.logger.info("A web scraping session has started.")
+                self.logger.info("A content polling session has started.")
                 self.last_videos = await self.check_new_youtube_videos(session, self.last_videos)
                 self.last_tracks = await self.check_new_soundcloud_tracks(session, self.last_tracks)
             except Exception as error:
-                self.logger.error(f"An exception has been caught!", exc_info=error)
+                self.logger.error("An exception has been caught!", exc_info=error)
+
+
+    @scraper.before_loop
+    async def before_scraper(self):
+        await self.bot.wait_until_ready()
 
 
 async def setup(bot: commands.Bot):
