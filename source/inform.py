@@ -67,7 +67,7 @@ class Inform(commands.Cog):
 
         embed = discord.Embed(title="Nightkingale Services",
             url="https://status.nightkingale.com",
-            description="You can view the health and status of all Nightkingale services on this page",
+            description="You can view the health and status of all Nightkingale services on this page.",
             colour=0x93bd20)
         embed.set_author(name="Nightkingale", url="https://nightkingale.com",
             icon_url="https://avatars.githubusercontent.com/u/63483138?v=4")
