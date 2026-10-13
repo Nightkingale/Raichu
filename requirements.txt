@@ -1,5 +1,5 @@
 aiohttp==3.14.3
 discord.py==2.7.1
 feedparser==6.0.14
-pymongo==4.18.2
+pymongo==4.18.3
 tzdata==2026.5
